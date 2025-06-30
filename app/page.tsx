@@ -20,6 +20,7 @@ import 'swiper/css/thumbs'
 export default function Home() {
   const [mounted, setMounted] = useState(false)
   const thumbsSwiper = useRef<any>(null)
+  const mainSwiper = useRef<any>(null)
   const { animateSlideChange, animateInitial } = useGSAPAnimations()
 
   useEffect(() => {
@@ -34,6 +35,12 @@ export default function Home() {
 
     return () => clearTimeout(timer)
   }, [animateInitial])
+
+  const handleScrollDown = () => {
+    if (mainSwiper.current) {
+      mainSwiper.current.slideNext()
+    }
+  }
 
   // Show loading state until mounted to prevent hydration mismatches
   if (!mounted) {
@@ -80,6 +87,9 @@ export default function Home() {
 
       <Swiper
         modules={[EffectCoverflow, Pagination, Thumbs, Mousewheel]}
+        onSwiper={(swiper) => {
+          mainSwiper.current = swiper
+        }}
         loop={true}
         spaceBetween={0}
         mousewheel={{
@@ -138,7 +148,23 @@ export default function Home() {
         ))}
       </Swiper>
 
-      <div className="scroll">
+      <div 
+        className="scroll"
+        onClick={handleScrollDown}
+        style={{
+          cursor: 'pointer',
+          transition: 'all 0.3s ease',
+          userSelect: 'none'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'translateY(-2px)'
+          e.currentTarget.style.opacity = '0.8'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'translateY(0)'
+          e.currentTarget.style.opacity = '1'
+        }}
+      >
         Scroll Down <i className="ri-arrow-down-s-line"></i>
       </div>
       
