@@ -35,23 +35,26 @@ export default function Home() {
     return () => clearTimeout(timer)
   }, [animateInitial])
 
-  // Show loading state until mounted
+  // Show loading state until mounted to prevent hydration mismatches
   if (!mounted) {
     return (
-      <div style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100vw',
-        height: '100vh',
-        background: 'linear-gradient(to bottom, #FE783D, #121826)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: 'white',
-        fontSize: '20px',
-        zIndex: 9999
-      }}>
+      <div 
+        suppressHydrationWarning
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          background: 'linear-gradient(to bottom, #FE783D, #121826)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontSize: '20px',
+          zIndex: 9999
+        }}
+      >
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '40px', marginBottom: '20px' }}>⚡</div>
           <div>Loading Moncler Experience...</div>
@@ -63,19 +66,29 @@ export default function Home() {
   console.log('✅ Rendering Moncler page with', products.length, 'products')
 
   return (
-    <div className="swiper-container" style={{ 
-      width: '100vw', 
-      height: '100vh',
-      position: 'relative',
-      overflow: 'hidden'
-    }}>
+    <div 
+      className="swiper-container" 
+      suppressHydrationWarning
+      style={{ 
+        width: '100vw', 
+        height: '100vh',
+        position: 'relative',
+        overflow: 'hidden'
+      }}
+    >
       <Navigation />
 
       <Swiper
         modules={[EffectCoverflow, Pagination, Thumbs, Mousewheel]}
         loop={true}
         spaceBetween={0}
-        mousewheel={true}
+        mousewheel={{
+          forceToAxis: false,
+          sensitivity: 1,
+          releaseOnEdges: false,
+          thresholdDelta: 50,
+          thresholdTime: 500,
+        }}
         speed={1200}
         effect="coverflow"
         direction="vertical"
