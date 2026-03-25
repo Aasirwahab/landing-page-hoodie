@@ -1,31 +1,46 @@
-import { Product } from '../types'
-
-export const products: Product[] = [
+// Fallback products used when Convex is not yet seeded
+// These match the Product interface shape for display purposes
+export const fallbackProducts = [
   {
-    id: 1,
-    title: 'POSSESSD',
-    color: 'Blood Orange',
-    price: '$1,249.00',
-    background: 'linear-gradient(to bottom, #FE783D, #121826)',
-    image: '/images/1.png',
-    thumbBackground: '#fff'
+    _id: "fallback-1" as any,
+    title: "POSSESSD",
+    color: "Blood Orange",
+    price: 124900,
+    priceFormatted: "$1,249.00",
+    background: "linear-gradient(to bottom, #FE783D, #121826)",
+    imageUrl: "/images/1.png",
+    thumbBackground: "#fff",
+    slug: "possessd-blood-orange",
+    category: "unisex" as const,
+    featured: true,
+    inStock: true,
   },
   {
-    id: 2,
-    title: 'POSSESSD',
-    color: 'Ocean Blue',
-    price: '$1,249.00',
-    background: 'linear-gradient(to bottom, #00499D, #121826)',
-    image: '/images/2.png',
-    thumbBackground: '#00499D'
+    _id: "fallback-2" as any,
+    title: "POSSESSD",
+    color: "Ocean Blue",
+    price: 124900,
+    priceFormatted: "$1,249.00",
+    background: "linear-gradient(to bottom, #00499D, #121826)",
+    imageUrl: "/images/2.png",
+    thumbBackground: "#00499D",
+    slug: "possessd-ocean-blue",
+    category: "unisex" as const,
+    featured: true,
+    inStock: true,
   },
   {
-    id: 3,
-    title: 'POSSESSD',
-    color: 'Royal Purple',
-    price: '$1,249.00',
-    background: 'linear-gradient(to bottom, #DAB1C8, #511990)',
-    image: '/images/3.png',
-    thumbBackground: '#fff'
-  }
-] 
+    _id: "fallback-3" as any,
+    title: "POSSESSD",
+    color: "Royal Purple",
+    price: 124900,
+    priceFormatted: "$1,249.00",
+    background: "linear-gradient(to bottom, #DAB1C8, #511990)",
+    imageUrl: "/images/3.png",
+    thumbBackground: "#fff",
+    slug: "possessd-royal-purple",
+    category: "unisex" as const,
+    featured: true,
+    inStock: true,
+  },
+];

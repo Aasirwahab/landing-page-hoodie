@@ -4,14 +4,15 @@ import { useEffect, useRef, useState } from 'react'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import { EffectCoverflow, Pagination, Thumbs, Mousewheel } from 'swiper/modules'
 import Image from 'next/image'
+import { useQuery } from 'convex/react'
+import { api } from '../convex/_generated/api'
 
-// Import components
 import Navigation from './components/Navigation'
 import ProductSlide from './components/ProductSlide'
 import { useGSAPAnimations } from './hooks/useGSAPAnimations'
-import { products } from './data/products'
+import { fallbackProducts } from './data/products'
+import { Product } from './types'
 
-// Import Swiper styles
 import 'swiper/css'
 import 'swiper/css/effect-coverflow'
 import 'swiper/css/pagination'
@@ -23,16 +24,18 @@ export default function Home() {
   const mainSwiper = useRef<any>(null)
   const { animateSlideChange, animateInitial } = useGSAPAnimations()
 
+  const convexProducts = useQuery(api.products.getFeatured)
+  const products: Product[] = convexProducts && convexProducts.length > 0
+    ? (convexProducts as Product[])
+    : (fallbackProducts as unknown as Product[])
+
+  const isLoading = convexProducts === undefined
+
   useEffect(() => {
-    console.log('🚀 Moncler page mounting...')
-    console.log('📦 Products:', products)
     setMounted(true)
-    
-    // Delay animations until everything is loaded
     const timer = setTimeout(() => {
       animateInitial()
     }, 1000)
-
     return () => clearTimeout(timer)
   }, [animateInitial])
 
@@ -42,10 +45,9 @@ export default function Home() {
     }
   }
 
-  // Show loading state until mounted to prevent hydration mismatches
-  if (!mounted) {
+  if (!mounted || isLoading) {
     return (
-      <div 
+      <div
         suppressHydrationWarning
         style={{
           position: 'fixed',
@@ -64,20 +66,18 @@ export default function Home() {
       >
         <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: '40px', marginBottom: '20px' }}>⚡</div>
-          <div>Loading Moncler Experience...</div>
+          <div>Loading POSSESSD Experience...</div>
         </div>
       </div>
     )
   }
 
-  console.log('✅ Rendering Moncler page with', products.length, 'products')
-
   return (
-    <div 
-      className="swiper-container" 
+    <div
+      className="swiper-container"
       suppressHydrationWarning
-      style={{ 
-        width: '100vw', 
+      style={{
+        width: '100vw',
         height: '100vh',
         position: 'relative',
         overflow: 'hidden'
@@ -120,7 +120,7 @@ export default function Home() {
         style={{ width: '100%', height: '100%' }}
       >
         {products.map((product) => (
-          <SwiperSlide key={product.id} style={{ background: product.background }}>
+          <SwiperSlide key={product._id} style={{ background: product.background }}>
             <ProductSlide product={product} />
           </SwiperSlide>
         ))}
@@ -136,10 +136,10 @@ export default function Home() {
         className="swiper-thumbs"
       >
         {products.map((product) => (
-          <SwiperSlide key={`thumb-${product.id}`} style={{ background: product.thumbBackground }}>
+          <SwiperSlide key={`thumb-${product._id}`} style={{ background: product.thumbBackground }}>
             <Image
-              src={product.image}
-              alt={`Thumbnail ${product.id}`}
+              src={product.imageUrl || '/images/1.png'}
+              alt={`${product.title} ${product.color}`}
               width={150}
               height={50}
               style={{ objectFit: 'cover' }}
@@ -148,7 +148,7 @@ export default function Home() {
         ))}
       </Swiper>
 
-      <div 
+      <div
         className="scroll"
         onClick={handleScrollDown}
         style={{
@@ -167,7 +167,7 @@ export default function Home() {
       >
         Scroll Down <i className="ri-arrow-down-s-line"></i>
       </div>
-      
+
       <div className="social">
         <a href="#" aria-label="LinkedIn">IN</a>
         <a href="#" aria-label="Facebook">FB</a>
@@ -175,4 +175,4 @@ export default function Home() {
       </div>
     </div>
   )
-} 
+}
