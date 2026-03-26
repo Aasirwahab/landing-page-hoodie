@@ -6,6 +6,7 @@ import { api } from '../../convex/_generated/api'
 import { useCart } from '../context/CartContext'
 import { useRouter } from 'next/navigation'
 import PageLayout from '../components/PageLayout'
+import FreeShippingBar from '../components/FreeShippingBar'
 import Image from 'next/image'
 
 export default function CheckoutPage() {
@@ -14,6 +15,16 @@ export default function CheckoutPage() {
   const createCheckout = useAction(api.stripe.createCheckoutSession)
   const settings = useQuery(api.settings.getAll)
   const [isLoading, setIsLoading] = useState(false)
+  const [couponCode, setCouponCode] = useState('')
+  const [couponOpen, setCouponOpen] = useState(false)
+  const [couponError, setCouponError] = useState('')
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string; type: 'percentage' | 'fixed'; value: number; discount: number
+  } | null>(null)
+  const couponData = useQuery(
+    api.coupons.getByCode,
+    couponCode.trim() ? { code: couponCode.trim() } : 'skip'
+  )
   const [address, setAddress] = useState({
     line1: '',
     line2: '',
@@ -52,13 +63,43 @@ export default function CheckoutPage() {
   const freeShippingThreshold = settings ? parseInt(settings.freeShippingThreshold) : 0
 
   const subtotal = state.total
-  const tax = Math.round(subtotal * taxRate)
+  const discount = appliedCoupon ? appliedCoupon.discount : 0
+  const afterDiscount = Math.max(0, subtotal - discount)
+  const tax = Math.round(afterDiscount * taxRate)
   const shipping = !shippingEnabled
     ? 0
     : freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
       ? 0
       : shippingFlatRate
-  const total = subtotal + tax + shipping
+  const total = afterDiscount + tax + shipping
+
+  const handleApplyCoupon = () => {
+    setCouponError('')
+    if (!couponCode.trim()) return
+    if (!couponData) {
+      setCouponError('Invalid coupon code')
+      return
+    }
+    if (couponData.minOrderAmount && subtotal < couponData.minOrderAmount) {
+      setCouponError(`Minimum order: $${(couponData.minOrderAmount / 100).toFixed(2)}`)
+      return
+    }
+    const disc = couponData.type === 'percentage'
+      ? Math.round(subtotal * (couponData.value / 100))
+      : couponData.value
+    setAppliedCoupon({
+      code: couponData.code,
+      type: couponData.type as 'percentage' | 'fixed',
+      value: couponData.value,
+      discount: disc,
+    })
+  }
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null)
+    setCouponCode('')
+    setCouponError('')
+  }
 
   const handleCheckout = async () => {
     if (!address.line1 || !address.city || !address.state || !address.zip) {
@@ -83,6 +124,7 @@ export default function CheckoutPage() {
         },
         successUrl: `${window.location.origin}/checkout/success`,
         cancelUrl: `${window.location.origin}/checkout/cancel`,
+        ...(appliedCoupon ? { couponCode: appliedCoupon.code } : {}),
       })
 
       if (url) {
@@ -162,6 +204,73 @@ export default function CheckoutPage() {
                 />
               </div>
             </div>
+
+            {/* Coupon Code */}
+            <div style={{ marginTop: '28px' }}>
+              <button
+                onClick={() => setCouponOpen(!couponOpen)}
+                style={{
+                  background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)',
+                  fontSize: '14px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '6px',
+                  padding: 0,
+                }}
+              >
+                <i className="ri-coupon-line" style={{ fontSize: '16px', color: '#FF6B35' }}></i>
+                Have a coupon?
+                <i className={couponOpen ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} style={{ fontSize: '16px' }}></i>
+              </button>
+              {couponOpen && (
+                <div style={{ marginTop: '12px', display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                  {appliedCoupon ? (
+                    <div style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      padding: '10px 14px', background: 'rgba(74,222,128,0.08)',
+                      border: '1px solid rgba(74,222,128,0.2)', borderRadius: '8px', flex: 1,
+                    }}>
+                      <i className="ri-check-line" style={{ color: '#4ade80', fontSize: '16px' }}></i>
+                      <span style={{ fontSize: '14px', color: '#4ade80', flex: 1 }}>
+                        {appliedCoupon.code} — {appliedCoupon.type === 'percentage'
+                          ? `${appliedCoupon.value}% off`
+                          : `$${(appliedCoupon.value / 100).toFixed(2)} off`}
+                      </span>
+                      <button
+                        onClick={removeCoupon}
+                        style={{
+                          background: 'none', border: 'none', color: 'rgba(255,255,255,0.4)',
+                          cursor: 'pointer', fontSize: '16px', padding: '0',
+                        }}
+                      >
+                        <i className="ri-close-line"></i>
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ flex: 1 }}>
+                        <input
+                          placeholder="Enter code"
+                          value={couponCode}
+                          onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError('') }}
+                          style={{ ...inputStyle, textTransform: 'uppercase', letterSpacing: '1px' }}
+                        />
+                        {couponError && (
+                          <p style={{ fontSize: '12px', color: '#f87171', marginTop: '6px' }}>{couponError}</p>
+                        )}
+                      </div>
+                      <button
+                        onClick={handleApplyCoupon}
+                        style={{
+                          padding: '12px 20px', background: 'rgba(255,255,255,0.08)',
+                          border: '1px solid rgba(255,255,255,0.12)', borderRadius: '8px',
+                          color: 'white', fontSize: '14px', cursor: 'pointer',
+                        }}
+                      >
+                        Apply
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Order Summary */}
@@ -200,11 +309,26 @@ export default function CheckoutPage() {
               ))}
             </div>
 
+            {/* Free Shipping Bar */}
+            {shippingEnabled && freeShippingThreshold > 0 && (
+              <FreeShippingBar
+                subtotal={subtotal}
+                freeShippingThreshold={freeShippingThreshold}
+                shippingFlatRate={shippingFlatRate}
+              />
+            )}
+
             <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.7 }}>
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
+              {appliedCoupon && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#4ade80' }}>
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <span>-{formatPrice(discount)}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.7 }}>
                 <span>Shipping</span>
                 <span style={{ color: shipping === 0 ? '#4ade80' : 'inherit' }}>

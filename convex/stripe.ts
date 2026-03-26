@@ -4,6 +4,7 @@ import { action } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import Stripe from "stripe";
+// internal.coupons.getByCodeInternal is used for coupon validation
 
 function getStripe() {
   return new Stripe(process.env.STRIPE_SECRET_KEY!, {
@@ -30,6 +31,7 @@ export const createCheckoutSession = action({
     }),
     successUrl: v.string(),
     cancelUrl: v.string(),
+    couponCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const stripe = getStripe();
@@ -99,7 +101,30 @@ export const createCheckoutSession = action({
         ? 0
         : shippingFlatRate;
     const tax = Math.round(subtotal * taxRate);
-    const total = subtotal + shipping + tax;
+
+    // Validate and apply coupon if provided
+    let discount = 0;
+    let validatedCouponCode: string | undefined;
+    if (args.couponCode) {
+      const coupon = await ctx.runQuery(internal.coupons.getByCodeInternal, {
+        code: args.couponCode,
+      });
+      if (coupon) {
+        if (coupon.minOrderAmount && subtotal < coupon.minOrderAmount) {
+          throw new Error(
+            `Minimum order amount of $${(coupon.minOrderAmount / 100).toFixed(2)} not met`
+          );
+        }
+        if (coupon.type === "percentage") {
+          discount = Math.round(subtotal * (coupon.value / 100));
+        } else {
+          discount = Math.min(coupon.value, subtotal);
+        }
+        validatedCouponCode = args.couponCode.toUpperCase();
+      }
+    }
+
+    const total = subtotal + shipping + tax - discount;
 
     // Add shipping and tax as line items so Stripe total matches
     if (shipping > 0) {
@@ -123,6 +148,18 @@ export const createCheckoutSession = action({
       });
     }
 
+    // Apply discount as Stripe coupon
+    let stripeDiscounts: Stripe.Checkout.SessionCreateParams.Discount[] = [];
+    if (discount > 0) {
+      const stripeCoupon = await stripe.coupons.create({
+        amount_off: discount,
+        currency: "usd",
+        duration: "once",
+        name: validatedCouponCode || "Discount",
+      });
+      stripeDiscounts = [{ coupon: stripeCoupon.id }];
+    }
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
@@ -133,6 +170,7 @@ export const createCheckoutSession = action({
       metadata: {
         clerkId: identity.subject,
       },
+      ...(stripeDiscounts.length > 0 ? { discounts: stripeDiscounts } : {}),
     });
 
     await ctx.runMutation(internal.stripeHelpers.createOrder, {
@@ -144,6 +182,8 @@ export const createCheckoutSession = action({
       total,
       stripeSessionId: session.id,
       shippingAddress: args.shippingAddress,
+      couponCode: validatedCouponCode,
+      discount: discount > 0 ? discount : undefined,
     });
 
     return session.url;

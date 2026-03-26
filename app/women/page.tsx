@@ -5,15 +5,22 @@ import { api } from '../../convex/_generated/api'
 import { Product } from '../types'
 import PageLayout from '../components/PageLayout'
 import ProductCard from '../components/ProductCard'
+import ProductFilters from '../components/ProductFilters'
+import { useProductFilters } from '../hooks/useProductFilters'
 
 export default function WomenPage() {
   const products = useQuery(api.products.getByCategory, { category: 'women' }) as Product[] | undefined
   const unisexProducts = useQuery(api.products.getByCategory, { category: 'unisex' }) as Product[] | undefined
 
-  const allProducts = [
-    ...(products ?? []),
-    ...(unisexProducts ?? []),
-  ]
+  const allProducts = products !== undefined && unisexProducts !== undefined
+    ? [...products, ...unisexProducts]
+    : undefined
+
+  const {
+    filters, setFilters, filteredProducts,
+    availableColors, availableSizes,
+    activeFilterCount, clearFilters, toggleColor, toggleSize,
+  } = useProductFilters(allProducts)
 
   return (
     <PageLayout>
@@ -37,13 +44,25 @@ export default function WomenPage() {
           </p>
         </div>
 
+        {/* Filters */}
+        <ProductFilters
+          filters={filters}
+          setFilters={setFilters}
+          availableColors={availableColors}
+          availableSizes={availableSizes}
+          activeFilterCount={activeFilterCount}
+          clearFilters={clearFilters}
+          toggleColor={toggleColor}
+          toggleSize={toggleSize}
+        />
+
         {/* Products Grid */}
         {products === undefined ? (
           <div style={{ textAlign: 'center', padding: '60px 0', opacity: 0.5 }}>Loading...</div>
-        ) : allProducts.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', opacity: 0.5 }}>
-            <p style={{ fontSize: '18px', marginBottom: '8px' }}>No women&apos;s products yet</p>
-            <p style={{ fontSize: '14px' }}>Check back soon for new arrivals</p>
+            <p style={{ fontSize: '18px', marginBottom: '8px' }}>No women&apos;s products found</p>
+            <p style={{ fontSize: '14px' }}>Try adjusting your filters</p>
           </div>
         ) : (
           <div style={{
@@ -51,7 +70,7 @@ export default function WomenPage() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '24px',
           }}>
-            {allProducts.map((product) => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

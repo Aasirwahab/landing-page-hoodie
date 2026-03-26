@@ -60,6 +60,24 @@ export const search = query({
   },
 });
 
+export const getRelated = query({
+  args: {
+    productId: v.id("products"),
+    category: v.union(v.literal("men"), v.literal("women"), v.literal("unisex")),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const maxItems = args.limit ?? 4;
+    const products = await ctx.db
+      .query("products")
+      .withIndex("by_category", (q) => q.eq("category", args.category))
+      .collect();
+    return products
+      .filter((p) => p._id !== args.productId)
+      .slice(0, maxItems);
+  },
+});
+
 export const getById = query({
   args: { id: v.id("products") },
   handler: async (ctx, args) => {
@@ -83,10 +101,18 @@ export const create = mutation({
     featured: v.boolean(),
     inStock: v.boolean(),
     sizes: v.optional(
-      v.array(v.object({ size: v.string(), inStock: v.boolean() }))
+      v.array(v.object({ size: v.string(), inStock: v.boolean(), quantity: v.optional(v.number()) }))
     ),
     tags: v.optional(v.array(v.string())),
     sortOrder: v.optional(v.number()),
+    images: v.optional(
+      v.array(v.object({
+        storageId: v.optional(v.id("_storage")),
+        url: v.optional(v.string()),
+        alt: v.optional(v.string()),
+        sortOrder: v.number(),
+      }))
+    ),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -121,10 +147,18 @@ export const update = mutation({
     featured: v.optional(v.boolean()),
     inStock: v.optional(v.boolean()),
     sizes: v.optional(
-      v.array(v.object({ size: v.string(), inStock: v.boolean() }))
+      v.array(v.object({ size: v.string(), inStock: v.boolean(), quantity: v.optional(v.number()) }))
     ),
     tags: v.optional(v.array(v.string())),
     sortOrder: v.optional(v.number()),
+    images: v.optional(
+      v.array(v.object({
+        storageId: v.optional(v.id("_storage")),
+        url: v.optional(v.string()),
+        alt: v.optional(v.string()),
+        sortOrder: v.number(),
+      }))
+    ),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();

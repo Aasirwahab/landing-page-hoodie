@@ -21,11 +21,22 @@ export default defineSchema({
         v.object({
           size: v.string(),
           inStock: v.boolean(),
+          quantity: v.optional(v.number()),
         })
       )
     ),
     tags: v.optional(v.array(v.string())),
     sortOrder: v.optional(v.number()),
+    images: v.optional(
+      v.array(
+        v.object({
+          storageId: v.optional(v.id("_storage")),
+          url: v.optional(v.string()),
+          alt: v.optional(v.string()),
+          sortOrder: v.number(),
+        })
+      )
+    ),
   })
     .index("by_slug", ["slug"])
     .index("by_category", ["category"])
@@ -107,10 +118,37 @@ export default defineSchema({
     stripePaymentIntentId: v.optional(v.string()),
     stripeSessionId: v.optional(v.string()),
     trackingNumber: v.optional(v.string()),
+    shippingCarrier: v.optional(v.string()),
+    trackingUrl: v.optional(v.string()),
+    estimatedDelivery: v.optional(v.number()),
+    couponCode: v.optional(v.string()),
+    discount: v.optional(v.number()),
+    statusHistory: v.optional(
+      v.array(
+        v.object({
+          status: v.string(),
+          timestamp: v.number(),
+          note: v.optional(v.string()),
+        })
+      )
+    ),
   })
     .index("by_userId", ["userId"])
     .index("by_status", ["status"])
     .index("by_stripeSessionId", ["stripeSessionId"]),
+
+  coupons: defineTable({
+    code: v.string(),
+    type: v.union(v.literal("percentage"), v.literal("fixed")),
+    value: v.number(),
+    minOrderAmount: v.optional(v.number()),
+    maxUses: v.optional(v.number()),
+    usedCount: v.number(),
+    expiresAt: v.optional(v.number()),
+    active: v.boolean(),
+  })
+    .index("by_code", ["code"])
+    .index("by_active", ["active"]),
 
   settings: defineTable({
     key: v.string(),

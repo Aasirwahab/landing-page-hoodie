@@ -15,9 +15,10 @@ export interface Product {
   category: "men" | "women" | "unisex";
   featured: boolean;
   inStock: boolean;
-  sizes?: { size: string; inStock: boolean }[];
+  sizes?: { size: string; inStock: boolean; quantity?: number }[];
   tags?: string[];
   sortOrder?: number;
+  images?: { storageId?: string; url?: string; alt?: string; sortOrder: number }[];
 }
 
 export interface NavigationItem {

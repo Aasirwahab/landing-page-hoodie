@@ -4,6 +4,7 @@ const nextConfig = {
     domains: [],
     formats: ['image/webp', 'image/avif'],
   },
+  turbopack: {},
   webpack: (config) => {
     // Handle font files
     config.module.rules.push({

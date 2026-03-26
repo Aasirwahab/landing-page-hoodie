@@ -7,23 +7,28 @@ import { Product } from '../../types'
 import PageLayout from '../../components/PageLayout'
 import ProductCard from '../../components/ProductCard'
 import SizeGuide from '../../components/SizeGuide'
+import ReviewSection from '../../components/ReviewSection'
+import ProductGallery from '../../components/ProductGallery'
+import ProductJsonLd from '../../components/ProductJsonLd'
 import { useCartActions } from '../../context/CartContext'
-import Image from 'next/image'
 import { useState } from 'react'
 
 export default function ProductDetailPage() {
   const params = useParams()
   const slug = params.slug as string
   const product = useQuery(api.products.getBySlug, { slug }) as Product | null | undefined
-  const allProducts = useQuery(api.products.list, {}) as Product[] | undefined
+  const relatedProducts = useQuery(
+    api.products.getRelated,
+    product ? { productId: product._id, category: product.category } : "skip"
+  ) as Product[] | undefined
+  const avgRating = useQuery(
+    api.reviews.getAverageRating,
+    product ? { productId: product._id } : "skip"
+  )
   const { addItem, toggleCart } = useCartActions()
   const [selectedSize, setSelectedSize] = useState<string | null>(null)
   const [isAdding, setIsAdding] = useState(false)
   const [showSizeGuide, setShowSizeGuide] = useState(false)
-
-  const relatedProducts = allProducts
-    ?.filter((p) => p._id !== product?._id)
-    .slice(0, 3)
 
   if (product === undefined) {
     return (
@@ -57,6 +62,11 @@ export default function ProductDetailPage() {
 
   return (
     <PageLayout>
+      <ProductJsonLd
+        product={product}
+        averageRating={avgRating?.average}
+        reviewCount={avgRating?.count}
+      />
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
         {/* Product Hero */}
         <div style={{
@@ -65,35 +75,8 @@ export default function ProductDetailPage() {
           gap: '60px',
           marginBottom: '80px',
         }}>
-          {/* Image */}
-          <div style={{
-            borderRadius: '20px',
-            overflow: 'hidden',
-            background: product.background,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            minHeight: '500px',
-            position: 'relative',
-          }}>
-            <Image
-              src={product.imageUrl || '/images/1.png'}
-              alt={`${product.title} - ${product.color}`}
-              width={350}
-              height={500}
-              style={{ objectFit: 'contain' }}
-              priority
-            />
-            {product.featured && (
-              <span style={{
-                position: 'absolute', top: '20px', left: '20px',
-                background: '#FF6B35', color: 'white', padding: '6px 14px',
-                borderRadius: '20px', fontSize: '12px', fontWeight: '600',
-              }}>
-                Featured
-              </span>
-            )}
-          </div>
+          {/* Image Gallery */}
+          <ProductGallery product={product} />
 
           {/* Details */}
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
@@ -164,6 +147,21 @@ export default function ProductDetailPage() {
                 }}></span>
                 {product.inStock ? 'In Stock' : 'Out of Stock'}
               </span>
+              {selectedSize && product.sizes && (() => {
+                const sizeEntry = product.sizes.find((s) => s.size === selectedSize)
+                if (sizeEntry?.quantity !== undefined && sizeEntry.quantity > 0 && sizeEntry.quantity < 5) {
+                  return (
+                    <span style={{
+                      display: 'inline-flex', alignItems: 'center', gap: '4px',
+                      fontSize: '12px', fontWeight: '600', color: '#fbbf24',
+                      marginLeft: '12px',
+                    }}>
+                      <i className="ri-fire-line"></i> Only {sizeEntry.quantity} left
+                    </span>
+                  )
+                }
+                return null
+              })()}
             </div>
 
             {/* Buttons */}
@@ -219,6 +217,9 @@ export default function ProductDetailPage() {
             </div>
           </div>
         )}
+
+        {/* Reviews */}
+        <ReviewSection productId={product._id} />
       </div>
 
       <SizeGuide isOpen={showSizeGuide} onClose={() => setShowSizeGuide(false)} />

@@ -5,22 +5,23 @@ import { api } from '../../convex/_generated/api'
 import { Product } from '../types'
 import PageLayout from '../components/PageLayout'
 import ProductCard from '../components/ProductCard'
+import ProductFilters from '../components/ProductFilters'
+import { useProductFilters } from '../hooks/useProductFilters'
 import { useState } from 'react'
 
 export default function ShopPage() {
   const allProducts = useQuery(api.products.list, {}) as Product[] | undefined
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc'>('featured')
-  const [categoryFilter, setCategoryFilter] = useState<'all' | 'men' | 'women' | 'unisex'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<string>('all')
 
-  const products = allProducts
-    ? allProducts
-        .filter((p) => categoryFilter === 'all' || p.category === categoryFilter)
-        .sort((a, b) => {
-          if (sortBy === 'price-asc') return a.price - b.price
-          if (sortBy === 'price-desc') return b.price - a.price
-          return (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
-        })
-    : []
+  const categoryFiltered = allProducts
+    ? allProducts.filter((p) => categoryFilter === 'all' || p.category === categoryFilter)
+    : undefined
+
+  const {
+    filters, setFilters, filteredProducts,
+    availableColors, availableSizes,
+    activeFilterCount, clearFilters, toggleColor, toggleSize,
+  } = useProductFilters(categoryFiltered)
 
   return (
     <PageLayout>
@@ -34,46 +35,24 @@ export default function ShopPage() {
         </div>
 
         {/* Filters */}
-        <div style={{
-          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          marginBottom: '30px', flexWrap: 'wrap', gap: '16px',
-        }}>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {(['all', 'men', 'women', 'unisex'] as const).map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategoryFilter(cat)}
-                style={{
-                  padding: '8px 16px', borderRadius: '20px', border: '1px solid',
-                  borderColor: categoryFilter === cat ? '#FF6B35' : 'rgba(255,255,255,0.15)',
-                  background: categoryFilter === cat ? '#FF6B35' : 'transparent',
-                  color: 'white', fontSize: '13px', cursor: 'pointer',
-                  textTransform: 'capitalize', transition: 'all 0.2s',
-                }}
-              >
-                {cat === 'all' ? 'All' : cat}
-              </button>
-            ))}
-          </div>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value as any)}
-            style={{
-              padding: '8px 16px', borderRadius: '8px',
-              background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)',
-              color: 'white', fontSize: '13px', cursor: 'pointer', outline: 'none',
-            }}
-          >
-            <option value="featured">Featured</option>
-            <option value="price-asc">Price: Low to High</option>
-            <option value="price-desc">Price: High to Low</option>
-          </select>
-        </div>
+        <ProductFilters
+          filters={filters}
+          setFilters={setFilters}
+          availableColors={availableColors}
+          availableSizes={availableSizes}
+          activeFilterCount={activeFilterCount}
+          clearFilters={clearFilters}
+          toggleColor={toggleColor}
+          toggleSize={toggleSize}
+          showCategoryFilter
+          categoryFilter={categoryFilter}
+          onCategoryChange={setCategoryFilter}
+        />
 
         {/* Products Grid */}
         {allProducts === undefined ? (
           <div style={{ textAlign: 'center', padding: '60px 0', opacity: 0.5 }}>Loading products...</div>
-        ) : products.length === 0 ? (
+        ) : filteredProducts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 0', opacity: 0.5 }}>No products found</div>
         ) : (
           <div style={{
@@ -81,7 +60,7 @@ export default function ShopPage() {
             gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '24px',
           }}>
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

@@ -2,8 +2,11 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { useQuery } from 'convex/react'
+import { api } from '../../convex/_generated/api'
 import { Product } from '../types'
 import { useCartActions } from '../context/CartContext'
+import StarRating from './StarRating'
 import { useState } from 'react'
 
 interface ProductCardProps {
@@ -12,6 +15,7 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const { addItem } = useCartActions()
+  const avgRating = useQuery(api.reviews.getAverageRating, { productId: product._id })
   const [isAdding, setIsAdding] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
 
@@ -122,6 +126,11 @@ export default function ProductCard({ product }: ProductCardProps) {
               {product.priceFormatted}
             </span>
           </div>
+          {avgRating && avgRating.count > 0 && (
+            <div style={{ marginTop: '8px' }}>
+              <StarRating rating={avgRating.average} size={13} showCount count={avgRating.count} />
+            </div>
+          )}
           {product.sizes && (
             <div style={{ display: 'flex', gap: '6px', marginTop: '12px' }}>
               {product.sizes.map((s) => (

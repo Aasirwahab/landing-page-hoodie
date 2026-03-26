@@ -18,6 +18,7 @@ export default function EditProductPage() {
     slug: '', description: '', category: 'unisex' as 'men' | 'women' | 'unisex',
     featured: false, inStock: true,
   })
+  const [sizes, setSizes] = useState<{ size: string; inStock: boolean; quantity: number }[]>([])
 
   useEffect(() => {
     if (product) {
@@ -33,6 +34,13 @@ export default function EditProductPage() {
         featured: product.featured,
         inStock: product.inStock,
       })
+      if (product.sizes) {
+        setSizes(product.sizes.map((s) => ({
+          size: s.size,
+          inStock: s.inStock,
+          quantity: (s as any).quantity ?? 0,
+        })))
+      }
     }
   }, [product])
 
@@ -59,6 +67,7 @@ export default function EditProductPage() {
         category: form.category,
         featured: form.featured,
         inStock: form.inStock,
+        sizes: sizes.length > 0 ? sizes : undefined,
       })
 
       router.push('/admin/products')
@@ -125,6 +134,62 @@ export default function EditProductPage() {
             <option value="women">Women</option>
           </select>
         </div>
+        {/* Sizes & Inventory */}
+        <div>
+          <label style={labelStyle}>Sizes & Inventory</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {sizes.map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  value={s.size}
+                  onChange={(e) => {
+                    const updated = [...sizes]
+                    updated[i] = { ...updated[i], size: e.target.value }
+                    setSizes(updated)
+                  }}
+                  placeholder="Size"
+                  style={{ ...inputStyle, width: '80px' }}
+                />
+                <input
+                  type="number"
+                  value={s.quantity}
+                  onChange={(e) => {
+                    const qty = parseInt(e.target.value) || 0
+                    const updated = [...sizes]
+                    updated[i] = { ...updated[i], quantity: qty, inStock: qty > 0 }
+                    setSizes(updated)
+                  }}
+                  placeholder="Qty"
+                  style={{ ...inputStyle, width: '100px' }}
+                />
+                <span style={{ fontSize: '12px', opacity: 0.5 }}>units</span>
+                <button
+                  type="button"
+                  onClick={() => setSizes(sizes.filter((_, idx) => idx !== i))}
+                  style={{
+                    background: 'rgba(248,113,113,0.15)', border: 'none', borderRadius: '6px',
+                    color: '#f87171', padding: '8px 10px', cursor: 'pointer', fontSize: '14px',
+                  }}
+                >
+                  <i className="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setSizes([...sizes, { size: '', inStock: true, quantity: 50 }])}
+              style={{
+                padding: '8px 16px', background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
+                color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer',
+                alignSelf: 'flex-start',
+              }}
+            >
+              <i className="ri-add-line"></i> Add Size
+            </button>
+          </div>
+        </div>
+
         <div style={{ display: 'flex', gap: '20px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
             <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} />

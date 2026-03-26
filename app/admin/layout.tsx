@@ -11,6 +11,9 @@ const adminNav = [
   { href: '/admin/products', label: 'Products', icon: 'ri-shopping-bag-line' },
   { href: '/admin/orders', label: 'Orders', icon: 'ri-file-list-3-line' },
   { href: '/admin/customers', label: 'Customers', icon: 'ri-user-line' },
+  { href: '/admin/coupons', label: 'Coupons', icon: 'ri-coupon-line' },
+  { href: '/admin/reviews', label: 'Reviews', icon: 'ri-star-line' },
+  { href: '/admin/analytics', label: 'Analytics', icon: 'ri-bar-chart-line' },
   { href: '/admin/settings', label: 'Settings', icon: 'ri-settings-3-line' },
 ]
 

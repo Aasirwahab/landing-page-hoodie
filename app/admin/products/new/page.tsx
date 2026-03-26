@@ -23,6 +23,13 @@ export default function NewProductPage() {
     inStock: true,
   })
   const [imageFile, setImageFile] = useState<File | null>(null)
+  const [additionalImages, setAdditionalImages] = useState<File[]>([])
+  const [sizes, setSizes] = useState<{ size: string; inStock: boolean; quantity: number }[]>([
+    { size: 'S', inStock: true, quantity: 50 },
+    { size: 'M', inStock: true, quantity: 50 },
+    { size: 'L', inStock: true, quantity: 50 },
+    { size: 'XL', inStock: true, quantity: 50 },
+  ])
 
   const handleColorChange = (color: string) => {
     setForm({
@@ -60,6 +67,24 @@ export default function NewProductPage() {
         imageUrl = '/images/1.png'
       }
 
+      // Upload additional images
+      const uploadedImages = []
+      for (let i = 0; i < additionalImages.length; i++) {
+        const file = additionalImages[i]
+        const url = await generateUploadUrl()
+        const res2 = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': file.type },
+          body: file,
+        })
+        const { storageId: sid } = await res2.json()
+        uploadedImages.push({
+          storageId: sid,
+          alt: `${form.title} - Image ${i + 2}`,
+          sortOrder: i + 1,
+        })
+      }
+
       await createProduct({
         title: form.title,
         color: form.color,
@@ -74,6 +99,8 @@ export default function NewProductPage() {
         category: form.category,
         featured: form.featured,
         inStock: form.inStock,
+        sizes: sizes.length > 0 ? sizes : undefined,
+        images: uploadedImages.length > 0 ? uploadedImages : undefined,
       })
 
       router.push('/admin/products')
@@ -144,12 +171,84 @@ export default function NewProductPage() {
         </div>
 
         <div>
+          <label style={labelStyle}>Additional Images</label>
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => setAdditionalImages(Array.from(e.target.files || []))}
+            style={{ ...inputStyle, padding: '10px' }}
+          />
+          {additionalImages.length > 0 && (
+            <p style={{ fontSize: '12px', opacity: 0.5, marginTop: '4px' }}>
+              {additionalImages.length} additional image(s) selected
+            </p>
+          )}
+        </div>
+
+        <div>
           <label style={labelStyle}>Category</label>
           <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as any })} style={inputStyle}>
             <option value="unisex">Unisex</option>
             <option value="men">Men</option>
             <option value="women">Women</option>
           </select>
+        </div>
+
+        {/* Sizes & Inventory */}
+        <div>
+          <label style={labelStyle}>Sizes & Inventory</label>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {sizes.map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <input
+                  value={s.size}
+                  onChange={(e) => {
+                    const updated = [...sizes]
+                    updated[i] = { ...updated[i], size: e.target.value }
+                    setSizes(updated)
+                  }}
+                  placeholder="Size"
+                  style={{ ...inputStyle, width: '80px' }}
+                />
+                <input
+                  type="number"
+                  value={s.quantity}
+                  onChange={(e) => {
+                    const qty = parseInt(e.target.value) || 0
+                    const updated = [...sizes]
+                    updated[i] = { ...updated[i], quantity: qty, inStock: qty > 0 }
+                    setSizes(updated)
+                  }}
+                  placeholder="Qty"
+                  style={{ ...inputStyle, width: '100px' }}
+                />
+                <span style={{ fontSize: '12px', opacity: 0.5 }}>units</span>
+                <button
+                  type="button"
+                  onClick={() => setSizes(sizes.filter((_, idx) => idx !== i))}
+                  style={{
+                    background: 'rgba(248,113,113,0.15)', border: 'none', borderRadius: '6px',
+                    color: '#f87171', padding: '8px 10px', cursor: 'pointer', fontSize: '14px',
+                  }}
+                >
+                  <i className="ri-delete-bin-line"></i>
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              onClick={() => setSizes([...sizes, { size: '', inStock: true, quantity: 50 }])}
+              style={{
+                padding: '8px 16px', background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px',
+                color: 'rgba(255,255,255,0.6)', fontSize: '13px', cursor: 'pointer',
+                alignSelf: 'flex-start',
+              }}
+            >
+              <i className="ri-add-line"></i> Add Size
+            </button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: '20px' }}>

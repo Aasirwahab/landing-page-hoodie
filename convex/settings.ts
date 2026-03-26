@@ -3,8 +3,8 @@ import { v } from "convex/values";
 
 // Default settings
 const DEFAULTS: Record<string, string> = {
-  shippingFlatRate: "0", // in cents
-  freeShippingThreshold: "0", // in cents, 0 = always free
+  shippingFlatRate: "999", // in cents ($9.99)
+  freeShippingThreshold: "15000", // in cents ($150.00), 0 = no free shipping threshold
   taxRate: "8", // percentage
   shippingEnabled: "true",
   storeName: "POSSESSD",

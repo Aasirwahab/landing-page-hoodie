@@ -35,6 +35,8 @@ export const createOrder = internalMutation({
       zip: v.string(),
       country: v.string(),
     }),
+    couponCode: v.optional(v.string()),
+    discount: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const user = await ctx.db
@@ -43,7 +45,6 @@ export const createOrder = internalMutation({
       .first();
     if (!user) throw new Error("User not found");
 
-    // Map productId strings to proper Ids
     const items = args.items.map((item) => ({
       productId: item.productId as any,
       title: item.title,
@@ -64,7 +65,21 @@ export const createOrder = internalMutation({
       status: "pending",
       stripeSessionId: args.stripeSessionId,
       shippingAddress: args.shippingAddress,
+      couponCode: args.couponCode,
+      discount: args.discount,
+      statusHistory: [{ status: "pending", timestamp: Date.now() }],
     });
+
+    // Increment coupon usage if applied
+    if (args.couponCode) {
+      const coupon = await ctx.db
+        .query("coupons")
+        .withIndex("by_code", (q) => q.eq("code", args.couponCode!))
+        .first();
+      if (coupon) {
+        await ctx.db.patch(coupon._id, { usedCount: coupon.usedCount + 1 });
+      }
+    }
   },
 });
 
@@ -83,7 +98,34 @@ export const markOrderPaid = internalMutation({
     if (!order) return;
     if (order.status !== "pending") return;
 
-    await ctx.db.patch(order._id, { status: "paid" });
+    const currentHistory = order.statusHistory ?? [];
+    const statusHistory = [
+      ...currentHistory,
+      { status: "paid", timestamp: Date.now() },
+    ];
+
+    await ctx.db.patch(order._id, { status: "paid", statusHistory });
+
+    // Decrement stock for each item
+    for (const item of order.items) {
+      const product = await ctx.db.get(item.productId);
+      if (!product) continue;
+
+      if (product.sizes && item.size) {
+        const updatedSizes = product.sizes.map((s) => {
+          if (s.size === item.size && s.quantity !== undefined) {
+            const newQty = Math.max(0, s.quantity - item.quantity);
+            return { ...s, quantity: newQty, inStock: newQty > 0 };
+          }
+          return s;
+        });
+        const allOutOfStock = updatedSizes.every((s) => !s.inStock);
+        await ctx.db.patch(product._id, {
+          sizes: updatedSizes,
+          inStock: !allOutOfStock,
+        });
+      }
+    }
 
     // Clear user's cart
     const user = await ctx.db

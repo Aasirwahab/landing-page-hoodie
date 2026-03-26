@@ -66,6 +66,21 @@ export const addItem = mutation({
 
     const qty = args.quantity ?? 1;
 
+    // Check stock availability
+    const product = await ctx.db.get(args.productId);
+    if (!product) throw new Error("Product not found");
+    if (!product.inStock) throw new Error("Product is out of stock");
+
+    if (args.size && product.sizes) {
+      const sizeEntry = product.sizes.find((s) => s.size === args.size);
+      if (sizeEntry) {
+        if (!sizeEntry.inStock) throw new Error(`Size ${args.size} is out of stock`);
+        if (sizeEntry.quantity !== undefined && sizeEntry.quantity < qty) {
+          throw new Error(`Only ${sizeEntry.quantity} left in size ${args.size}`);
+        }
+      }
+    }
+
     if (!cart) {
       await ctx.db.insert("cart", {
         userId: user._id,

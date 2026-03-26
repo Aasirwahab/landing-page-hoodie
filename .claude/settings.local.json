@@ -20,7 +20,16 @@
       "mcp__convex__data",
       "mcp__convex__logs",
       "Bash(node -e \"console.log\\(Buffer.from\\(''dG9wLWdvcGhlci04Mi5jbGVyay5hY2NvdW50cy5kZXYk'', ''base64''\\).toString\\(\\)\\)\")",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(powershell -Command \"Get-Process node -ErrorAction SilentlyContinue | Stop-Process -Force\")",
+      "Bash(rm -rf .next)",
+      "Bash(for f:*)",
+      "Bash(do echo:*)",
+      "Read(//f/Freelacing projects/landing-moncler/**)",
+      "Bash(done)",
+      "Bash(npm run:*)",
+      "mcp__firecrawl__firecrawl_search",
+      "mcp__firecrawl__firecrawl_scrape"
     ]
   }
 }

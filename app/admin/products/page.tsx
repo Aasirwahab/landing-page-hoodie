@@ -88,11 +88,29 @@ export default function AdminProductsPage() {
                     {product.category}
                   </td>
                   <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <span style={{
-                      width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block',
-                      background: product.inStock ? '#4ade80' : '#f87171', marginRight: '6px',
-                    }}></span>
-                    <span style={{ fontSize: '13px' }}>{product.inStock ? 'In Stock' : 'Out'}</span>
+                    {(() => {
+                      const totalQty = product.sizes?.reduce((sum, s) => sum + (s.quantity ?? 0), 0)
+                      const hasQuantity = product.sizes?.some((s) => s.quantity !== undefined)
+                      const lowStock = hasQuantity && totalQty !== undefined && totalQty > 0 && totalQty < 10
+                      const stockColor = !product.inStock ? '#f87171' : lowStock ? '#fbbf24' : '#4ade80'
+                      return (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{
+                            width: '8px', height: '8px', borderRadius: '50%', display: 'inline-block',
+                            background: stockColor,
+                          }}></span>
+                          <span style={{ fontSize: '13px' }}>
+                            {!product.inStock ? 'Out' : hasQuantity ? `${totalQty} units` : 'In Stock'}
+                          </span>
+                          {lowStock && (
+                            <span style={{
+                              fontSize: '10px', padding: '1px 6px', borderRadius: '10px',
+                              background: 'rgba(251,191,36,0.15)', color: '#fbbf24',
+                            }}>Low</span>
+                          )}
+                        </div>
+                      )
+                    })()}
                   </td>
                   <td style={{ padding: '12px 16px', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
                     {product.featured ? (
