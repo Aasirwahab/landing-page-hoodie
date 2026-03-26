@@ -29,7 +29,7 @@ export default function Navigation() {
   }
 
   return (
-    <nav>
+    <nav className="store-nav">
       {navItems.map((item) => (
         <Link
           key={item.href}

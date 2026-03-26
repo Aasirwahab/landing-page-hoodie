@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAction } from 'convex/react'
+import { useAction, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useCart } from '../context/CartContext'
 import { useRouter } from 'next/navigation'
@@ -12,6 +12,7 @@ export default function CheckoutPage() {
   const { state } = useCart()
   const router = useRouter()
   const createCheckout = useAction(api.stripe.createCheckoutSession)
+  const settings = useQuery(api.settings.getAll)
   const [isLoading, setIsLoading] = useState(false)
   const [address, setAddress] = useState({
     line1: '',
@@ -45,9 +46,18 @@ export default function CheckoutPage() {
   const formatPrice = (cents: number) =>
     `$${(cents / 100).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
 
+  const taxRate = settings ? parseFloat(settings.taxRate) / 100 : 0.08
+  const shippingEnabled = settings ? settings.shippingEnabled === 'true' : false
+  const shippingFlatRate = settings ? parseInt(settings.shippingFlatRate) : 0
+  const freeShippingThreshold = settings ? parseInt(settings.freeShippingThreshold) : 0
+
   const subtotal = state.total
-  const tax = Math.round(subtotal * 0.08)
-  const shipping = 0
+  const tax = Math.round(subtotal * taxRate)
+  const shipping = !shippingEnabled
+    ? 0
+    : freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
+      ? 0
+      : shippingFlatRate
   const total = subtotal + tax + shipping
 
   const handleCheckout = async () => {
@@ -96,6 +106,8 @@ export default function CheckoutPage() {
     fontSize: '14px',
     outline: 'none',
   }
+
+  const taxPercent = settings ? parseFloat(settings.taxRate) : 8
 
   return (
     <PageLayout>
@@ -195,12 +207,16 @@ export default function CheckoutPage() {
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.7 }}>
                 <span>Shipping</span>
-                <span style={{ color: '#4ade80' }}>Free</span>
+                <span style={{ color: shipping === 0 ? '#4ade80' : 'inherit' }}>
+                  {shipping === 0 ? 'Free' : formatPrice(shipping)}
+                </span>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.7 }}>
-                <span>Tax (8%)</span>
-                <span>{formatPrice(tax)}</span>
-              </div>
+              {taxPercent > 0 && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', opacity: 0.7 }}>
+                  <span>Tax ({taxPercent}%)</span>
+                  <span>{formatPrice(tax)}</span>
+                </div>
+              )}
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '18px', fontWeight: '700', marginTop: '8px', paddingTop: '12px', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
                 <span>Total</span>
                 <span style={{ color: '#FF6B35' }}>{formatPrice(total)}</span>

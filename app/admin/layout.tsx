@@ -10,6 +10,8 @@ const adminNav = [
   { href: '/admin', label: 'Dashboard', icon: 'ri-dashboard-line' },
   { href: '/admin/products', label: 'Products', icon: 'ri-shopping-bag-line' },
   { href: '/admin/orders', label: 'Orders', icon: 'ri-file-list-3-line' },
+  { href: '/admin/customers', label: 'Customers', icon: 'ri-user-line' },
+  { href: '/admin/settings', label: 'Settings', icon: 'ri-settings-3-line' },
 ]
 
 export default function AdminLayout({ children }: { children: ReactNode }) {

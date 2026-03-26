@@ -82,13 +82,46 @@ export const createCheckoutSession = action({
 
     if (lineItems.length === 0) throw new Error("No valid items");
 
+    // Fetch store settings for tax & shipping
+    const settings = await ctx.runQuery(internal.settings.getAllInternal);
+    const taxRate = parseFloat(settings.taxRate) / 100;
+    const shippingEnabled = settings.shippingEnabled === "true";
+    const shippingFlatRate = parseInt(settings.shippingFlatRate);
+    const freeShippingThreshold = parseInt(settings.freeShippingThreshold);
+
     const subtotal = orderItems.reduce(
       (sum, item) => sum + item.price * item.quantity,
       0
     );
-    const shipping = 0;
-    const tax = Math.round(subtotal * 0.08);
+    const shipping = !shippingEnabled
+      ? 0
+      : freeShippingThreshold > 0 && subtotal >= freeShippingThreshold
+        ? 0
+        : shippingFlatRate;
+    const tax = Math.round(subtotal * taxRate);
     const total = subtotal + shipping + tax;
+
+    // Add shipping and tax as line items so Stripe total matches
+    if (shipping > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "usd",
+          product_data: { name: "Shipping" },
+          unit_amount: shipping,
+        },
+        quantity: 1,
+      });
+    }
+    if (tax > 0) {
+      lineItems.push({
+        price_data: {
+          currency: "usd",
+          product_data: { name: `Tax (${settings.taxRate}%)` },
+          unit_amount: tax,
+        },
+        quantity: 1,
+      });
+    }
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],

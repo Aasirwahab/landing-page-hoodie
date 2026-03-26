@@ -112,6 +112,11 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_stripeSessionId", ["stripeSessionId"]),
 
+  settings: defineTable({
+    key: v.string(),
+    value: v.string(),
+  }).index("by_key", ["key"]),
+
   reviews: defineTable({
     productId: v.id("products"),
     userId: v.id("users"),

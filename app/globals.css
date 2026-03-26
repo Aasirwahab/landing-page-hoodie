@@ -28,14 +28,13 @@
 }
 
 body {
-  height: 100vh;
+  min-height: 100vh;
   font-family: "Inter", sans-serif;
   color: var(--text-light);
-  overflow: hidden;
 }
 
 /* Enhanced Navigation - Keep this improved */
-nav {
+.store-nav {
   width: auto;
   display: flex;
   gap: 2rem;
@@ -54,7 +53,7 @@ nav {
   box-shadow: var(--shadow-soft);
 }
 
-nav a {
+.store-nav a {
   text-decoration: none;
   display: flex;
   align-items: center;
@@ -67,18 +66,18 @@ nav a {
   position: relative;
 }
 
-nav a:hover {
+.store-nav a:hover {
   background: var(--glass-bg);
   transform: translateY(-2px);
   box-shadow: var(--shadow-soft);
 }
 
-nav a.active {
+.store-nav a.active {
   background: linear-gradient(135deg, var(--primary-orange), var(--secondary-orange));
   box-shadow: 0 4px 20px rgba(255, 107, 53, 0.4);
 }
 
-nav a i {
+.store-nav a i {
   font-size: 1.125rem;
 }
 
