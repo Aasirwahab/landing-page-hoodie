@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      domain: "https://top-gopher-82.clerk.accounts.dev",
       applicationID: "convex",
     },
   ],

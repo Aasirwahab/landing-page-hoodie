@@ -8,6 +8,7 @@ import { useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
 
 import Navigation from './components/Navigation'
+import CartSidebar from './components/CartSidebar'
 import ProductSlide from './components/ProductSlide'
 import { useGSAPAnimations } from './hooks/useGSAPAnimations'
 import { fallbackProducts } from './data/products'
@@ -47,25 +48,9 @@ export default function Home() {
 
   if (!mounted || isLoading) {
     return (
-      <div
-        suppressHydrationWarning
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100vw',
-          height: '100vh',
-          background: 'linear-gradient(to bottom, #FE783D, #121826)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          color: 'white',
-          fontSize: '20px',
-          zIndex: 9999
-        }}
-      >
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '40px', marginBottom: '20px' }}>⚡</div>
+      <div className="home-loading" suppressHydrationWarning>
+        <div className="home-loading-content">
+          <div className="home-loading-emoji">⚡</div>
           <div>Loading POSSESSD Experience...</div>
         </div>
       </div>
@@ -76,14 +61,9 @@ export default function Home() {
     <div
       className="swiper-container"
       suppressHydrationWarning
-      style={{
-        width: '100vw',
-        height: '100vh',
-        position: 'relative',
-        overflow: 'hidden'
-      }}
     >
       <Navigation />
+      <CartSidebar />
 
       <Swiper
         modules={[EffectCoverflow, Pagination, Thumbs, Mousewheel]}
@@ -117,7 +97,6 @@ export default function Home() {
         }}
         onSlideChangeTransitionStart={animateSlideChange}
         className="swiper"
-        style={{ width: '100%', height: '100%' }}
       >
         {products.map((product) => (
           <SwiperSlide key={product._id} style={{ background: product.background }}>
@@ -142,28 +121,14 @@ export default function Home() {
               alt={`${product.title} ${product.color}`}
               width={150}
               height={50}
-              style={{ objectFit: 'cover' }}
             />
           </SwiperSlide>
         ))}
       </Swiper>
 
       <div
-        className="scroll"
+        className="scroll scroll-trigger"
         onClick={handleScrollDown}
-        style={{
-          cursor: 'pointer',
-          transition: 'all 0.3s ease',
-          userSelect: 'none'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.transform = 'translateY(-2px)'
-          e.currentTarget.style.opacity = '0.8'
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.transform = 'translateY(0)'
-          e.currentTarget.style.opacity = '1'
-        }}
       >
         Scroll Down <i className="ri-arrow-down-s-line"></i>
       </div>

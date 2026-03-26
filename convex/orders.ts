@@ -104,11 +104,24 @@ export const addTrackingNumber = mutation({
 export const getByStripeSession = query({
   args: { sessionId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+
+    const order = await ctx.db
       .query("orders")
       .withIndex("by_stripeSessionId", (q) =>
         q.eq("stripeSessionId", args.sessionId)
       )
       .first();
+    if (!order) return null;
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.subject))
+      .first();
+    if (!user) return null;
+    if (order.userId !== user._id && user.role !== "admin") return null;
+
+    return order;
   },
 });

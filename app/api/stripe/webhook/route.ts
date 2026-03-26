@@ -35,8 +35,10 @@ export async function POST(req: NextRequest) {
 
     if (clerkId && session.id) {
       try {
-        // Use internal mutation via HTTP client - mark the order as paid
-        // The verifySession action handles this on the client side as well
+        await convex.action(api.stripe.webhookMarkOrderPaid, {
+          stripeSessionId: session.id,
+          clerkId,
+        });
         console.log(`Payment succeeded for session ${session.id}`);
       } catch (error) {
         console.error("Error processing webhook:", error);

@@ -1,10 +1,8 @@
 'use client'
 
-import { ReactNode, useEffect } from 'react'
+import { ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useMutation } from 'convex/react'
-import { api } from '../../convex/_generated/api'
 
 const dashNav = [
   { href: '/dashboard', label: 'Overview', icon: 'ri-dashboard-line' },
@@ -16,11 +14,6 @@ const dashNav = [
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
-  const getOrCreateUser = useMutation(api.users.getOrCreateUser)
-
-  useEffect(() => {
-    getOrCreateUser().catch(console.error)
-  }, [getOrCreateUser])
 
   return (
     <div style={{ minHeight: '100vh', background: '#0a0a1a', color: 'white', display: 'flex' }}>

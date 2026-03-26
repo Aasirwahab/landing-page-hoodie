@@ -14,7 +14,12 @@
       "Bash(npx next:*)",
       "mcp__convex__envList",
       "Bash(npm ls:*)",
-      "mcp__convex__run"
+      "mcp__convex__run",
+      "Bash(taskkill //f //im node.exe)",
+      "mcp__convex__runOneoffQuery",
+      "mcp__convex__data",
+      "mcp__convex__logs",
+      "Bash(node -e \"console.log\\(Buffer.from\\(''dG9wLWdvcGhlci04Mi5jbGVyay5hY2NvdW50cy5kZXYk'', ''base64''\\).toString\\(\\)\\)\")"
     ]
   }
 }

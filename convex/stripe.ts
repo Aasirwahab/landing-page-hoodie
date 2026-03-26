@@ -117,6 +117,24 @@ export const createCheckoutSession = action({
   },
 });
 
+export const webhookMarkOrderPaid = action({
+  args: {
+    stripeSessionId: v.string(),
+    clerkId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const stripe = getStripe();
+    const session = await stripe.checkout.sessions.retrieve(args.stripeSessionId);
+    if (session.payment_status !== "paid") {
+      throw new Error("Payment not confirmed by Stripe");
+    }
+    await ctx.runMutation(internal.stripeHelpers.markOrderPaid, {
+      stripeSessionId: args.stripeSessionId,
+      clerkId: args.clerkId,
+    });
+  },
+});
+
 export const verifySession = action({
   args: { sessionId: v.string() },
   handler: async (ctx, args) => {

@@ -1,7 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
-const ADMIN_EMAILS = ["nawrif@gmail.com"];
+const ADMIN_EMAILS = ["nawrifwahab342@gmail.com"];
 
 export const getOrCreateUser = mutation({
   handler: async (ctx) => {

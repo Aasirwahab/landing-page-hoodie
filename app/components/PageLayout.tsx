@@ -4,6 +4,7 @@ import { ReactNode } from 'react'
 import Navigation from './Navigation'
 import Footer from './Footer'
 import SearchOverlay from './SearchOverlay'
+import CartSidebar from './CartSidebar'
 
 interface PageLayoutProps {
   children: ReactNode
@@ -11,17 +12,11 @@ interface PageLayoutProps {
 
 export default function PageLayout({ children }: PageLayoutProps) {
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0a0a1a 0%, #1a1a2e 50%, #16213e 100%)',
-      color: 'white',
-    }}>
+    <div className="page-layout">
       <Navigation />
       <SearchOverlay />
-      <main style={{
-        paddingTop: '80px',
-        minHeight: 'calc(100vh - 200px)',
-      }}>
+      <CartSidebar />
+      <main className="page-layout-main">
         {children}
       </main>
       <Footer />
