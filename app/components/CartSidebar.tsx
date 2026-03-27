@@ -94,7 +94,9 @@ export default function CartSidebar() {
                   {/* Thumbnail */}
                   <div
                     className="cart-item-thumb"
-                    style={{ '--item-bg': item.thumbBackground || item.background } as React.CSSProperties}
+                    ref={(el) => {
+                      if (el) el.style.setProperty('--item-bg', item.thumbBackground || item.background)
+                    }}
                   >
                     <Image
                       src={item.imageUrl || '/images/1.png'}

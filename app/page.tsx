@@ -168,7 +168,9 @@ export default function Home() {
         {/* Background gradient */}
         <div
           className="hero-bg"
-          style={{ '--hero-bg': currentProduct.background } as React.CSSProperties}
+          ref={(el) => {
+            if (el) el.style.setProperty('--hero-bg', currentProduct.background)
+          }}
         />
 
         {/* Grid overlay for luxury feel */}
@@ -240,7 +242,9 @@ export default function Home() {
                   key={p._id}
                   onClick={() => setActiveProduct(i)}
                   className={`hero-color-dot ${activeProduct === i ? 'active' : ''}`}
-                  style={{ '--item-bg': p.thumbBackground === '#fff' ? p.background : p.thumbBackground } as React.CSSProperties}
+                  ref={(el) => {
+                    if (el) el.style.setProperty('--item-bg', p.thumbBackground === '#fff' ? p.background : p.thumbBackground || '')
+                  }}
                   aria-label={p.color}
                 />
               ))}
@@ -310,7 +314,9 @@ export default function Home() {
             >
               <div
                 className="gallery-card-image"
-                style={{ '--card-bg': product.background } as React.CSSProperties}
+                ref={(el) => {
+                  if (el) el.style.setProperty('--card-bg', product.background)
+                }}
               >
                 <Image
                   src={product.imageUrl || '/images/1.png'}

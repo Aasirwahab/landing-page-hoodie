@@ -116,6 +116,24 @@ body {
 }
 
 /* ============================
+   GSAP Initial States
+   ============================ */
+[data-anim] {
+  opacity: 0;
+}
+
+[data-anim="clip-reveal"] {
+  opacity: 1;
+  clip-path: inset(100% 0 0 0);
+  -webkit-clip-path: inset(100% 0 0 0);
+}
+
+[data-anim="line-draw"] {
+  opacity: 1;
+  transform: scaleX(0);
+}
+
+/* ============================
    Premium Homepage
    ============================ */
 .premium-home {
