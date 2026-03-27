@@ -7,6 +7,13 @@ import { useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
 import { gsap } from 'gsap'
 
+// Premium Components
+import CustomCursor from './components/CustomCursor'
+import AnatomySection from './components/AnatomySection'
+import FabricSection from './components/FabricSection'
+import CampaignSection from './components/CampaignSection'
+import MagneticWrapper from './components/MagneticWrapper'
+
 import Navigation from './components/Navigation'
 import CartSidebar from './components/CartSidebar'
 import BrandLoader from './components/BrandLoader'
@@ -160,6 +167,7 @@ export default function Home() {
 
   return (
     <div ref={containerRef} className="premium-home">
+      <CustomCursor />
       <Navigation />
       <CartSidebar />
 
@@ -429,6 +437,10 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ====== ADVANCED TECHNICAL SECTION ====== */}
+      <AnatomySection />
+      <FabricSection />
+
       {/* ====== EDITORIAL / BRAND STORY SECTION ====== */}
       <section className="editorial-section" data-section>
         <div className="editorial-inner">
@@ -464,6 +476,9 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ====== CINEMATIC CAMPAIGN SECTION ====== */}
+      <CampaignSection />
 
       {/* ====== CTA / NEWSLETTER SECTION ====== */}
       <section ref={ctaRef} className="cta-section" data-section>

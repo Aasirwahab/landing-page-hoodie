@@ -2172,3 +2172,301 @@ body {
   transform: translateX(50%) translateY(-2px);
   opacity: 0.8;
 }
+
+/* ============================
+   Anatomy & Hotspots
+   ============================ */
+
+/* Utilizing the existing .editorial-section layout from the main site */
+.anatomy-image-container {
+  flex: 1;
+  position: relative;
+  aspect-ratio: 4/5;
+  width: 100%;
+}
+
+.anatomy-image {
+  object-fit: contain;
+}
+
+.hotspot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+  cursor: pointer;
+}
+
+.hotspot-dot {
+  width: 16px;
+  height: 16px;
+  background-color: var(--primary-orange);
+  border-radius: 50%;
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+.hotspot-ring {
+  position: absolute;
+  inset: -12px;
+  border: 1px solid rgba(255, 69, 0, 0.5);
+  border-radius: 50%;
+  animation: pulse-ring 2.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+.hotspot.active .hotspot-dot {
+  transform: scale(1.3);
+}
+
+.hotspot-tooltip {
+  position: absolute;
+  top: 50%;
+  left: 35px;
+  transform: translateY(-50%) translateX(10px);
+  width: max-content;
+  max-width: 250px;
+  background: rgba(10, 10, 10, 0.85);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px;
+  border-radius: 2px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hotspot.active .hotspot-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+.hotspot-title {
+  font-family: var(--font-playfair);
+  font-size: 20px;
+  margin-bottom: 6px;
+  color: #fff;
+}
+
+.hotspot-desc {
+  font-family: var(--font-inter);
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.6);
+  line-height: 1.5;
+}
+
+/* ============================
+   Fabric Story Section
+   ============================ */
+.fabric-story-section {
+  position: relative;
+  width: 100vw;
+  background-color: #000;
+  overflow: hidden;
+}
+
+.fabric-stack-container {
+  display: block;
+}
+
+.fabric-stack-panel {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+}
+
+.fabric-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1;
+}
+
+.fabric-image-cover {
+  object-fit: cover !important;
+  opacity: 0.7;
+}
+
+.fabric-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 60%);
+  z-index: 2;
+}
+
+.fabric-content {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-left {
+  justify-content: center;
+  padding: 0 10%;
+  max-width: 1000px;
+}
+
+.panel-center {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 10%;
+}
+
+.fabric-title {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(40px, 6vw, 90px);
+  color: #fff;
+  margin-bottom: 24px;
+  line-height: 1.1;
+  font-style: italic;
+}
+
+.fabric-desc {
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+/* Margin helpers */
+.mb-6 { margin-bottom: 24px; }
+
+/* ============================
+   Campaign Cinematic Section
+   ============================ */
+.campaign-section {
+  width: 100%;
+  height: 100vh;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+  margin: 120px 0;
+}
+
+.campaign-video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.campaign-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  min-height: 100vh;
+  transform-origin: center;
+}
+
+.campaign-image {
+  object-fit: cover;
+  opacity: 0.8;
+}
+
+.campaign-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.campaign-play-btn {
+  width: 120px;
+  height: 120px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.05);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform 0.3s ease;
+}
+
+.campaign-section:hover .campaign-play-btn {
+  transform: scale(1.05);
+}
+
+.campaign-play-btn i {
+  color: #fff;
+  font-size: 48px;
+  margin-left: 8px; /* Optical center */
+}
+
+@media (max-width: 768px) {
+  .campaign-section {
+    height: 60vh;
+    margin: 60px 0;
+  }
+  .campaign-play-btn {
+    width: 80px;
+    height: 80px;
+  }
+  .campaign-play-btn i {
+    font-size: 32px;
+  }
+}
+
+/* ============================
+   Custom Cursor & Cinematic
+   ============================ */
+.custom-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 1);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: difference;
+  display: none; /* Mobile hidden */
+}
+
+@media (min-width: 768px) {
+  .custom-cursor {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.cursor-label {
+  font-size: 4px;
+  font-family: var(--font-inter);
+  font-weight: bold;
+  color: #000;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
+  opacity: 0;
+}
+
+.cursor-label.visible {
+  opacity: 1;
+}
+
+.animate-cinematic-pan {
+  animation: cinematic-pan 25s ease-in-out infinite alternate;
+}
+
+@keyframes cinematic-pan {
+  0% { transform: scale(1.05) translate(0%, 0%); }
+  100% { transform: scale(1.15) translate(-2%, 2%); }
+}
