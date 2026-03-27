@@ -114,6 +114,11 @@ export default function Home() {
 
     const handleScroll = () => {
       if (!heroImgRef.current) return
+      // Disable parallax on mobile/tablet where elements are stacked
+      if (window.innerWidth <= 1024) {
+        heroImgRef.current.style.transform = 'none'
+        return
+      }
       const scrollY = window.scrollY
       const translateY = scrollY * 0.3
       const scale = 1 + scrollY * 0.0002
