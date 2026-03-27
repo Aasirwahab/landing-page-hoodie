@@ -94,7 +94,7 @@ export default function CartSidebar() {
                   {/* Thumbnail */}
                   <div
                     className="cart-item-thumb"
-                    style={{ background: item.thumbBackground || item.background }}
+                    style={{ '--item-bg': item.thumbBackground || item.background } as React.CSSProperties}
                   >
                     <Image
                       src={item.imageUrl || '/images/1.png'}
@@ -168,7 +168,7 @@ export default function CartSidebar() {
             </div>
             <div className="cart-summary-row cart-summary-row--shipping">
               <span className="cart-summary-label">Shipping</span>
-              <span className="cart-summary-shipping" style={{ color: shippingCost === 0 ? '#4ade80' : 'inherit' }}>
+              <span className={`cart-summary-shipping ${shippingCost === 0 ? 'text-success' : ''}`}>
                 {shippingCost === 0 ? 'Free' : formatPrice(shippingCost)}
               </span>
             </div>

@@ -125,6 +125,7 @@ body {
   inset: 0;
   opacity: 0.35;
   transition: background 0.8s ease;
+  background: var(--hero-bg);
 }
 
 .hero-bg::after {
@@ -544,6 +545,7 @@ body {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: var(--card-bg);
 }
 
 .gallery-card-overlay {
@@ -1300,6 +1302,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  background: var(--item-bg);
 }
 
 .cart-item-thumb img {
@@ -1590,6 +1593,57 @@ body {
   height: 100vh;
   position: relative;
   overflow: hidden;
+}
+
+/* ============================
+   UTILITY CLASSES - Clean Code
+   ============================ */
+.full-fixed-loader {
+  position: fixed;
+  inset: 0;
+  background: #0a0a0a;
+  z-index: 10000;
+}
+
+.perspective-600 {
+  perspective: 600px;
+}
+
+.ml-8 {
+  margin-left: 8px;
+}
+
+.img-full-contain {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}
+
+.img-full-cover {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shadow-premium {
+  filter: drop-shadow(0 30px 60px rgba(0, 0, 0, 0.5));
+}
+
+.shadow-gallery {
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));
+}
+
+.dot-status {
+  font-size: 8px;
+  vertical-align: middle;
+}
+
+.text-success {
+  color: #4ade80 !important;
+}
+
+.text-error {
+  color: #f87171 !important;
 }
 
 /* Legacy product slide styles — scoped to swiper only */

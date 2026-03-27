@@ -145,7 +145,7 @@ export default function Home() {
     return (
       <>
         {(!mounted || isLoading) ? (
-          <div style={{ position: 'fixed', inset: 0, background: '#0a0a0a', zIndex: 10000 }} />
+          <div className="full-fixed-loader" />
         ) : (
           <BrandLoader onComplete={() => setLoading(false)} />
         )}
@@ -163,7 +163,7 @@ export default function Home() {
         {/* Background gradient */}
         <div
           className="hero-bg"
-          style={{ background: currentProduct.background }}
+          style={{ '--hero-bg': currentProduct.background } as React.CSSProperties}
         />
 
         {/* Grid overlay for luxury feel */}
@@ -173,7 +173,7 @@ export default function Home() {
           <div className="hero-text-side">
             <p className="hero-overline">Fall / Winter 2025 Collection</p>
 
-            <h1 className="hero-title" style={{ perspective: '600px' }}>
+            <h1 className="hero-title perspective-600">
               <span className="hero-title-word">Redefining</span>
               <span className="hero-title-word hero-title-accent">Premium</span>
               <span className="hero-title-word">Outerwear</span>
@@ -187,7 +187,7 @@ export default function Home() {
             <div className="hero-cta-group">
               <Link href="/shop" className="hero-btn-primary">
                 Explore Collection
-                <i className="ri-arrow-right-line" style={{ marginLeft: '8px' }}></i>
+                <i className="ri-arrow-right-line ml-8"></i>
               </Link>
               <Link href={`/products/${currentProduct.slug}`} className="hero-btn-secondary">
                 View Details
@@ -219,7 +219,7 @@ export default function Home() {
                 width={600}
                 height={800}
                 priority
-                style={{ width: '100%', height: 'auto', objectFit: 'contain', filter: 'drop-shadow(0 30px 60px rgba(0,0,0,0.5))' }}
+                className="img-full-contain shadow-premium"
               />
               {/* Floating price tag */}
               <div className="hero-floating-price">
@@ -235,7 +235,7 @@ export default function Home() {
                   key={p._id}
                   onClick={() => setActiveProduct(i)}
                   className={`hero-color-dot ${activeProduct === i ? 'active' : ''}`}
-                  style={{ background: p.thumbBackground === '#fff' ? p.background : p.thumbBackground }}
+                  style={{ '--item-bg': p.thumbBackground === '#fff' ? p.background : p.thumbBackground } as React.CSSProperties}
                   aria-label={p.color}
                 />
               ))}
@@ -305,14 +305,14 @@ export default function Home() {
             >
               <div
                 className="gallery-card-image"
-                style={{ background: product.background }}
+                style={{ '--card-bg': product.background } as React.CSSProperties}
               >
                 <Image
                   src={product.imageUrl || '/images/1.png'}
                   alt={`${product.title} - ${product.color}`}
                   width={400}
                   height={550}
-                  style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.4))' }}
+                  className="img-full-contain shadow-gallery"
                 />
                 <div className="gallery-card-overlay">
                   <button
@@ -334,9 +334,9 @@ export default function Home() {
                   <span className="gallery-card-collection">POSSESSD</span>
                   <span className="gallery-card-stock">
                     {product.inStock ? (
-                      <><i className="ri-checkbox-blank-circle-fill" style={{ color: '#4ade80', fontSize: '8px' }}></i> In Stock</>
+                      <><i className="ri-checkbox-blank-circle-fill dot-status text-success"></i> In Stock</>
                     ) : (
-                      <><i className="ri-checkbox-blank-circle-fill" style={{ color: '#f87171', fontSize: '8px' }}></i> Sold Out</>
+                      <><i className="ri-checkbox-blank-circle-fill dot-status text-error"></i> Sold Out</>
                     )}
                   </span>
                 </div>
@@ -355,7 +355,7 @@ export default function Home() {
         <div className="gallery-cta" data-anim="fade-up">
           <Link href="/shop" className="gallery-view-all">
             View All Products
-            <i className="ri-arrow-right-line" style={{ marginLeft: '8px' }}></i>
+            <i className="ri-arrow-right-line ml-8"></i>
           </Link>
         </div>
       </section>
@@ -427,7 +427,7 @@ export default function Home() {
               alt="POSSESSD Editorial"
               width={600}
               height={800}
-              style={{ width: '100%', height: '100%', objectFit: 'contain', filter: 'drop-shadow(0 20px 60px rgba(0,0,0,0.5))' }}
+              className="img-full-contain shadow-premium"
             />
           </div>
           <div className="editorial-text">
@@ -447,7 +447,7 @@ export default function Home() {
             <div data-anim="fade-up" data-anim-delay="0.4">
               <Link href="/shop" className="editorial-link">
                 Discover the Process
-                <i className="ri-arrow-right-line" style={{ marginLeft: '8px' }}></i>
+                <i className="ri-arrow-right-line ml-8"></i>
               </Link>
             </div>
           </div>
@@ -467,7 +467,7 @@ export default function Home() {
           <div className="cta-actions" data-anim="fade-up" data-anim-delay="0.3">
             <Link href="/shop" className="cta-btn-primary">
               Shop Now
-              <i className="ri-arrow-right-line" style={{ marginLeft: '8px' }}></i>
+              <i className="ri-arrow-right-line ml-8"></i>
             </Link>
           </div>
         </div>
