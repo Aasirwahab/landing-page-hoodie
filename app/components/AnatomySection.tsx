@@ -27,10 +27,14 @@ export default function AnatomySection() {
         </div>
 
         <div className="anatomy-image-container" data-anim="clip-reveal">
-          <Image 
-            src="/images/anatomy_1.png" 
-            alt="Jacket Anatomy" 
+          <Image
+            src="/images/anatomy_1.webp"
+            alt="Jacket Anatomy"
             fill
+            quality={75}
+            sizes="(max-width: 768px) 90vw, 50vw"
+            placeholder="blur"
+            blurDataURL="data:image/webp;base64,UklGRkAAAABXRUJQVlA4IDQAAACwAQCdASoKAAoABUB8JbACdAD0qd34AP2cMd1ISKkr5/wbM2LJc+wwl/1/FDnuHOYLPAAA"
             className="anatomy-image"
           />
           

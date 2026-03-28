@@ -21,6 +21,13 @@ import { useCartActions } from './context/CartContext'
 import { fallbackProducts } from './data/products'
 import { Product } from './types'
 
+// Blur placeholders for perceived loading performance
+const blurPlaceholders: Record<string, string> = {
+  '/images/1.webp': 'data:image/webp;base64,UklGRqYAAABXRUJQVlA4WAoAAAAQAAAABgAACQAAQUxQSEcAAAAABTVeXCwDAAtNjIpICQARZrrOgS0IG3DF6LJdHyuA1f7kkDxBlur/9J9LW6n2/+eSPl+r9/7OeSVFkt/yq1YNHXHF5pVAAwBWUDggOAAAALABAJ0BKgcACgAFQHwlsAJ0AQ5hMEgA/qwHtbP6D0WermaX6ZMh8LOvcFwh643jCWxpVVx2AAAA',
+  '/images/2.webp': 'data:image/webp;base64,UklGRpQAAABXRUJQVlA4WAoAAAAQAAAABgAACQAAQUxQSEMAAAANcBjbtlmd2HaaSe0pxrY+bhsREQgyo8s3LtL85mjMWNOXo7Bs8B8MAujHMrQcB/GauWwl2JR7tuqjJMBv/XMmQCAAAFZQOCAqAAAA8AEAnQEqBwAKAAVAfCWIAnQBH/8fB/IAAP7s15Aj6s5UB8avrV90JsAA',
+  '/images/3.webp': 'data:image/webp;base64,UklGRowAAABXRUJQVlA4WAoAAAAQAAAABgAACQAAQUxQSD4AAAANYBvbtqn9bUSMfv9VmZGNOiIiSFKhzuCLPLkbEaP4bztUObrfDl94R8Bg3YGPTxLgPHxLH5kHnBC2YbcCEVZQOCAoAAAA0AEAnQEqBwAKAAVAfCWIAsOxDvtBFoAA/ui5T0rPpw2Czdq9NiAAAA==',
+}
+
 export default function Home() {
   const [loading, setLoading] = useState(true)
   const [mounted, setMounted] = useState(false)
@@ -115,25 +122,32 @@ export default function Home() {
       .fromTo('.hero-scroll-indicator', { opacity: 0 }, { opacity: 1, duration: 0.6 }, '-=0.3')
   }, [loading, mounted])
 
-  // Parallax on hero image
+  // Parallax on hero image (rAF-throttled for performance)
   useEffect(() => {
     if (loading || !mounted) return
 
+    let rafId: number | null = null
     const handleScroll = () => {
-      if (!heroImgRef.current) return
-      // Disable parallax on mobile/tablet where elements are stacked
-      if (window.innerWidth <= 1024) {
-        heroImgRef.current.style.transform = 'none'
-        return
-      }
-      const scrollY = window.scrollY
-      const translateY = scrollY * 0.3
-      const scale = 1 + scrollY * 0.0002
-      heroImgRef.current.style.transform = `translateY(${translateY}px) scale(${Math.min(scale, 1.15)})`
+      if (rafId) return
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        if (!heroImgRef.current) return
+        if (window.innerWidth <= 1024) {
+          heroImgRef.current.style.transform = 'none'
+          return
+        }
+        const scrollY = window.scrollY
+        const translateY = scrollY * 0.3
+        const scale = 1 + scrollY * 0.0002
+        heroImgRef.current.style.transform = `translateY(${translateY}px) scale(${Math.min(scale, 1.15)})`
+      })
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      if (rafId) cancelAnimationFrame(rafId)
+    }
   }, [loading, mounted])
 
   const handleAddToCart = useCallback(
@@ -229,11 +243,15 @@ export default function Home() {
           <div className="hero-image-side">
             <div ref={heroImgRef} className="hero-product-image">
               <Image
-                src={currentProduct.imageUrl || '/images/1.png'}
+                src={currentProduct.imageUrl?.replace('.png', '.webp') || '/images/1.webp'}
                 alt={`${currentProduct.title} - ${currentProduct.color}`}
                 width={600}
                 height={800}
                 priority
+                quality={80}
+                sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 600px"
+                placeholder="blur"
+                blurDataURL={blurPlaceholders[currentProduct.imageUrl?.replace('.png', '.webp') || '/images/1.webp'] || blurPlaceholders['/images/1.webp']}
                 className="img-full-contain shadow-premium"
               />
               {/* Floating price tag */}
@@ -327,10 +345,14 @@ export default function Home() {
                 }}
               >
                 <Image
-                  src={product.imageUrl || '/images/1.png'}
+                  src={product.imageUrl?.replace('.png', '.webp') || '/images/1.webp'}
                   alt={`${product.title} - ${product.color}`}
                   width={400}
                   height={550}
+                  quality={75}
+                  sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 400px"
+                  placeholder="blur"
+                  blurDataURL={blurPlaceholders[product.imageUrl?.replace('.png', '.webp') || '/images/1.webp'] || blurPlaceholders['/images/1.webp']}
                   className="img-full-contain shadow-gallery"
                 />
                 <div className="gallery-card-overlay">
@@ -446,10 +468,14 @@ export default function Home() {
         <div className="editorial-inner">
           <div className="editorial-image" data-anim="clip-reveal">
             <Image
-              src={products[1]?.imageUrl || '/images/2.png'}
+              src={products[1]?.imageUrl?.replace('.png', '.webp') || '/images/2.webp'}
               alt="POSSESSD Editorial"
               width={600}
               height={800}
+              quality={75}
+              sizes="(max-width: 768px) 90vw, (max-width: 1200px) 45vw, 600px"
+              placeholder="blur"
+              blurDataURL={blurPlaceholders['/images/2.webp']}
               className="img-full-contain shadow-premium"
             />
           </div>

@@ -14,7 +14,7 @@ export const seedProducts = mutation({
         price: 124900,
         priceFormatted: "$1,249.00",
         background: "linear-gradient(to bottom, #FE783D, #121826)",
-        imageUrl: "/images/1.png",
+        imageUrl: "/images/1.webp",
         thumbBackground: "#fff",
         slug: "possessd-blood-orange",
         description:
@@ -38,7 +38,7 @@ export const seedProducts = mutation({
         price: 124900,
         priceFormatted: "$1,249.00",
         background: "linear-gradient(to bottom, #1E90FF, #121826)",
-        imageUrl: "/images/2.png",
+        imageUrl: "/images/2.webp",
         thumbBackground: "#fff",
         slug: "possessd-ocean-blue",
         description:
@@ -62,7 +62,7 @@ export const seedProducts = mutation({
         price: 124900,
         priceFormatted: "$1,249.00",
         background: "linear-gradient(to bottom, #7B2D8E, #121826)",
-        imageUrl: "/images/3.png",
+        imageUrl: "/images/3.webp",
         thumbBackground: "#fff",
         slug: "possessd-royal-purple",
         description:

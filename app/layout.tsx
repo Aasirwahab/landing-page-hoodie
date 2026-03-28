@@ -1,5 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import ConvexClientProvider from './providers/ConvexClientProvider'
 import { CartProvider } from './context/CartContext'
 import CartSidebar from './components/CartSidebar'
@@ -43,6 +44,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link
+          rel="preload"
+          href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css"
+          as="style"
+          crossOrigin="anonymous"
+        />
         <link
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css"

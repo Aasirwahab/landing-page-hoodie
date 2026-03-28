@@ -68,7 +68,7 @@ export default function AdminProductsPage() {
                         alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                       }}>
                         <Image
-                          src={product.imageUrl || '/images/1.png'}
+                          src={product.imageUrl || '/images/1.webp'}
                           alt={product.title}
                           width={28}
                           height={28}

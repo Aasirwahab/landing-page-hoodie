@@ -128,7 +128,7 @@ export default function SearchOverlay() {
                         flexShrink: 0,
                       }}>
                         <Image
-                          src={product.imageUrl || '/images/1.png'}
+                          src={product.imageUrl || '/images/1.webp'}
                           alt={product.title}
                           width={40}
                           height={40}

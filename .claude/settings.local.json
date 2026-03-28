@@ -29,7 +29,16 @@
       "Bash(done)",
       "Bash(npm run:*)",
       "mcp__firecrawl__firecrawl_search",
-      "mcp__firecrawl__firecrawl_scrape"
+      "mcp__firecrawl__firecrawl_scrape",
+      "Bash(find public/images -type f -exec ls -lh {})",
+      "Bash(sort -k5 -hr)",
+      "Bash(node -e \"const sharp = require\\(''sharp''\\); console.log\\(''sharp available''\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(cmd //c 'rmdir /s /q .next')",
+      "Bash(find '/f/Freelacing projects/landing-moncler/app' -type f \\\\\\(-name *.ts -o -name *.tsx \\\\\\))",
+      "Bash(ls -la convex/*.ts)",
+      "Bash(xargs -I {} bash -c \"echo \"\"=== {} ===\"\" && find {} -maxdepth 1 -type f | wc -l\")",
+      "Bash(xargs grep:*)"
     ]
   }
 }

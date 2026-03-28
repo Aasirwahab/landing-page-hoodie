@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 
 interface BrandLoaderProps {
@@ -8,8 +8,8 @@ interface BrandLoaderProps {
 }
 
 export default function BrandLoader({ onComplete }: BrandLoaderProps) {
-  const [progress, setProgress] = useState(0)
   const loaderRef = useRef<HTMLDivElement>(null)
+  const progressBarRef = useRef<HTMLDivElement>(null)
   const brandRef = useRef<HTMLDivElement>(null)
   const lineLeftRef = useRef<HTMLDivElement>(null)
   const lineRightRef = useRef<HTMLDivElement>(null)
@@ -34,7 +34,7 @@ export default function BrandLoader({ onComplete }: BrandLoaderProps) {
       },
     })
 
-    // Counter animation
+    // Counter animation (DOM-only, no React re-renders)
     const counter = { val: 0 }
     gsap.to(counter, {
       val: 100,
@@ -42,8 +42,8 @@ export default function BrandLoader({ onComplete }: BrandLoaderProps) {
       ease: 'power2.inOut',
       onUpdate: () => {
         const v = Math.round(counter.val)
-        setProgress(v)
         if (counterRef.current) counterRef.current.textContent = String(v)
+        if (progressBarRef.current) progressBarRef.current.style.width = `${v}%`
       },
     })
 
@@ -217,11 +217,11 @@ export default function BrandLoader({ onComplete }: BrandLoaderProps) {
             }}
           >
             <div
+              ref={progressBarRef}
               style={{
-                width: `${progress}%`,
+                width: '0%',
                 height: '100%',
                 background: 'rgba(255,107,53,0.6)',
-                transition: 'width 0.1s linear',
               }}
             />
           </div>

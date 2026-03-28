@@ -8,6 +8,63 @@ export const getProduct = internalQuery({
   },
 });
 
+export const updateOrderSessionId = internalMutation({
+  args: {
+    oldSessionId: v.string(),
+    newSessionId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const order = await ctx.db
+      .query("orders")
+      .withIndex("by_stripeSessionId", (q) =>
+        q.eq("stripeSessionId", args.oldSessionId)
+      )
+      .first();
+    if (order) {
+      await ctx.db.patch(order._id, { stripeSessionId: args.newSessionId });
+    }
+  },
+});
+
+const MAX_FIELD_LENGTH = 255;
+
+function validateAddress(address: {
+  line1: string;
+  line2?: string;
+  city: string;
+  state: string;
+  zip: string;
+  country: string;
+}) {
+  if (!address.line1 || address.line1.trim().length === 0) {
+    throw new Error("Address line 1 is required");
+  }
+  if (address.line1.length > MAX_FIELD_LENGTH) {
+    throw new Error("Address line 1 is too long");
+  }
+  if (address.line2 && address.line2.length > MAX_FIELD_LENGTH) {
+    throw new Error("Address line 2 is too long");
+  }
+  if (!address.city || address.city.trim().length === 0) {
+    throw new Error("City is required");
+  }
+  if (address.city.length > MAX_FIELD_LENGTH) {
+    throw new Error("City is too long");
+  }
+  if (!address.state || address.state.trim().length === 0) {
+    throw new Error("State is required");
+  }
+  if (address.state.length > 100) {
+    throw new Error("State is too long");
+  }
+  if (!address.zip || !/^[a-zA-Z0-9\s\-]{3,20}$/.test(address.zip)) {
+    throw new Error("Invalid ZIP/postal code");
+  }
+  if (!address.country || !/^[A-Z]{2}$/.test(address.country)) {
+    throw new Error("Invalid country code (use 2-letter ISO code)");
+  }
+}
+
 export const createOrder = internalMutation({
   args: {
     clerkId: v.string(),
@@ -39,6 +96,8 @@ export const createOrder = internalMutation({
     discount: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    // Validate shipping address server-side
+    validateAddress(args.shippingAddress);
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))

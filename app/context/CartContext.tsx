@@ -5,6 +5,7 @@ import { Product } from '../types'
 
 export interface LocalCartItem extends Product {
   quantity: number
+  selectedSize?: string
 }
 
 interface CartState {
@@ -15,7 +16,7 @@ interface CartState {
 }
 
 type CartAction =
-  | { type: 'ADD_ITEM'; payload: Product }
+  | { type: 'ADD_ITEM'; payload: Product; size?: string }
   | { type: 'REMOVE_ITEM'; payload: string }
   | { type: 'UPDATE_QUANTITY'; payload: { id: string; quantity: number } }
   | { type: 'CLEAR_CART' }
@@ -40,17 +41,21 @@ function calculateItemCount(items: LocalCartItem[]): number {
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {
-      const existingItem = state.items.find(item => item._id === action.payload._id)
+      const selectedSize = action.size
+      // Match by product ID + size combination
+      const existingItem = state.items.find(
+        item => item._id === action.payload._id && item.selectedSize === selectedSize
+      )
 
       let newItems: LocalCartItem[]
       if (existingItem) {
         newItems = state.items.map(item =>
-          item._id === action.payload._id
+          item._id === action.payload._id && item.selectedSize === selectedSize
             ? { ...item, quantity: item.quantity + 1 }
             : item
         )
       } else {
-        newItems = [...state.items, { ...action.payload, quantity: 1 }]
+        newItems = [...state.items, { ...action.payload, quantity: 1, selectedSize }]
       }
 
       return {
@@ -132,7 +137,7 @@ export function useCartActions() {
   const { dispatch } = useCart()
 
   return {
-    addItem: (product: Product) => dispatch({ type: 'ADD_ITEM', payload: product }),
+    addItem: (product: Product, size?: string) => dispatch({ type: 'ADD_ITEM', payload: product, size }),
     removeItem: (id: string) => dispatch({ type: 'REMOVE_ITEM', payload: id }),
     updateQuantity: (id: string, quantity: number) =>
       dispatch({ type: 'UPDATE_QUANTITY', payload: { id, quantity } }),

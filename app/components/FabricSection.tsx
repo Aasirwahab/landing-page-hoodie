@@ -11,10 +11,14 @@ export default function FabricSection() {
         {/* Panel 1 */}
         <div className="fabric-stack-panel">
           <div className="fabric-bg">
-            <Image 
-              src="/images/fabric_1.png" 
-              alt="Ripstop Shell" 
+            <Image
+              src="/images/fabric_1.webp"
+              alt="Ripstop Shell"
               fill
+              quality={75}
+              sizes="100vw"
+              placeholder="blur"
+              blurDataURL="data:image/webp;base64,UklGRjoAAABXRUJQVlA4IC4AAABwAQCdASoKAAoABUB8JagCdAFAAAD+7NlvPUCW3xsxPm+GQW6T9aY49hhOSMAA"
               className="fabric-image-cover"
             />
           </div>
@@ -30,10 +34,14 @@ export default function FabricSection() {
         {/* Panel 2 */}
         <div className="fabric-stack-panel fabric-stack-overlay">
           <div className="fabric-bg fabric-bg-hover">
-            <Image 
-              src="/images/fabric_2.png" 
-              alt="Thermal Core" 
+            <Image
+              src="/images/fabric_2.webp"
+              alt="Thermal Core"
               fill
+              quality={75}
+              sizes="100vw"
+              placeholder="blur"
+              blurDataURL="data:image/webp;base64,UklGRjAAAABXRUJQVlA4ICQAAABwAQCdASoKAAoABUB8JZQC7AGIQAD+8EIWRYNopoX42mRXAAA="
               className="fabric-image-cover fabric-image-zoom"
             />
             <div className="fabric-scrim"></div>

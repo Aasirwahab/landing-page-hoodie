@@ -113,6 +113,7 @@ export default function CheckoutPage() {
         items: state.items.map((item) => ({
           productId: item._id,
           quantity: item.quantity,
+          size: item.selectedSize,
         })),
         shippingAddress: {
           line1: address.line1,
@@ -291,7 +292,7 @@ export default function CheckoutPage() {
                     alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                   }}>
                     <Image
-                      src={item.imageUrl || '/images/1.png'}
+                      src={item.imageUrl || '/images/1.webp'}
                       alt={item.title}
                       width={35}
                       height={35}

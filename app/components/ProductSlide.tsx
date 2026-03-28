@@ -96,7 +96,7 @@ export default function ProductSlide({ product }: ProductSlideProps) {
       </div>
 
       <Image
-        src={product.imageUrl || '/images/1.png'}
+        src={product.imageUrl || '/images/1.webp'}
         alt={`${product.title} - ${product.color}`}
         className="main-img"
         width={400}

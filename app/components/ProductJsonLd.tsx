@@ -14,7 +14,7 @@ export default function ProductJsonLd({ product, averageRating, reviewCount }: P
     '@type': 'Product',
     name: `${product.title} - ${product.color}`,
     description: product.description || `${product.title} ${product.color} - Premium urban outerwear by POSSESSD`,
-    image: product.imageUrl || '/images/1.png',
+    image: product.imageUrl || '/images/1.webp',
     brand: {
       '@type': 'Brand',
       name: 'POSSESSD',

@@ -6,12 +6,12 @@ import PageLayout from '../components/PageLayout'
 import { useCartActions } from '../context/CartContext'
 
 const colorOptions = [
-  { name: 'Blood Orange', hex: '#FE783D', gradient: 'linear-gradient(to bottom, #FE783D, #121826)', image: '/images/1.png' },
-  { name: 'Ocean Blue', hex: '#1E90FF', gradient: 'linear-gradient(to bottom, #1E90FF, #121826)', image: '/images/2.png' },
-  { name: 'Royal Purple', hex: '#7B2D8E', gradient: 'linear-gradient(to bottom, #DAB1C8, #511990)', image: '/images/3.png' },
-  { name: 'Midnight Black', hex: '#2a2a2a', gradient: 'linear-gradient(to bottom, #444, #121826)', image: '/images/1.png' },
-  { name: 'Arctic White', hex: '#e8e8e8', gradient: 'linear-gradient(to bottom, #ddd, #888)', image: '/images/2.png' },
-  { name: 'Forest Green', hex: '#2d6a4f', gradient: 'linear-gradient(to bottom, #40916c, #121826)', image: '/images/3.png' },
+  { name: 'Blood Orange', hex: '#FE783D', gradient: 'linear-gradient(to bottom, #FE783D, #121826)', image: '/images/1.webp' },
+  { name: 'Ocean Blue', hex: '#1E90FF', gradient: 'linear-gradient(to bottom, #1E90FF, #121826)', image: '/images/2.webp' },
+  { name: 'Royal Purple', hex: '#7B2D8E', gradient: 'linear-gradient(to bottom, #DAB1C8, #511990)', image: '/images/3.webp' },
+  { name: 'Midnight Black', hex: '#2a2a2a', gradient: 'linear-gradient(to bottom, #444, #121826)', image: '/images/1.webp' },
+  { name: 'Arctic White', hex: '#e8e8e8', gradient: 'linear-gradient(to bottom, #ddd, #888)', image: '/images/2.webp' },
+  { name: 'Forest Green', hex: '#2d6a4f', gradient: 'linear-gradient(to bottom, #40916c, #121826)', image: '/images/3.webp' },
 ]
 
 const sizeOptions = ['XS', 'S', 'M', 'L', 'XL']

@@ -64,7 +64,7 @@ export default function NewProductPage() {
         const { storageId } = await res.json()
         imageStorageId = storageId
       } else {
-        imageUrl = '/images/1.png'
+        imageUrl = '/images/1.webp'
       }
 
       // Upload additional images

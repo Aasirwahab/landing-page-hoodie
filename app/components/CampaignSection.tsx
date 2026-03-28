@@ -46,10 +46,14 @@ export default function CampaignSection() {
         }}
       >
         <div className="campaign-bg animate-cinematic-pan">
-          <Image 
-            src="/images/campaign_shot.png"
+          <Image
+            src="/images/campaign_shot.webp"
             alt="POSSESSD Campaign"
             fill
+            quality={75}
+            sizes="100vw"
+            placeholder="blur"
+            blurDataURL="data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAACwAQCdASoKAAoABUB8JYgCdAEOO2gAAP6h55PSaehYi4WokqXk/RGAAAA="
             className="campaign-image"
           />
         </div>

@@ -99,7 +99,7 @@ export default function CartSidebar() {
                     }}
                   >
                     <Image
-                      src={item.imageUrl || '/images/1.png'}
+                      src={item.imageUrl || '/images/1.webp'}
                       alt={item.title}
                       width={40}
                       height={40}

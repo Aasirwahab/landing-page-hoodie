@@ -33,7 +33,7 @@ export default function ProductGallery({ product }: ProductGalleryProps) {
 
   // Fallback
   if (images.length === 0) {
-    images.push({ url: '/images/1.png', alt: product.title })
+    images.push({ url: '/images/1.webp', alt: product.title })
   }
 
   const [activeIndex, setActiveIndex] = useState(0)

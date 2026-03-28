@@ -160,6 +160,23 @@ export const createCheckoutSession = action({
       stripeDiscounts = [{ coupon: stripeCoupon.id }];
     }
 
+    // Create order FIRST to avoid race condition where webhook fires
+    // before order exists in the database
+    const pendingSessionId = `pending_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+
+    await ctx.runMutation(internal.stripeHelpers.createOrder, {
+      clerkId: identity.subject,
+      items: orderItems,
+      subtotal,
+      tax,
+      shipping,
+      total,
+      stripeSessionId: pendingSessionId,
+      shippingAddress: args.shippingAddress,
+      couponCode: validatedCouponCode,
+      discount: discount > 0 ? discount : undefined,
+    });
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
@@ -173,17 +190,10 @@ export const createCheckoutSession = action({
       ...(stripeDiscounts.length > 0 ? { discounts: stripeDiscounts } : {}),
     });
 
-    await ctx.runMutation(internal.stripeHelpers.createOrder, {
-      clerkId: identity.subject,
-      items: orderItems,
-      subtotal,
-      tax,
-      shipping,
-      total,
-      stripeSessionId: session.id,
-      shippingAddress: args.shippingAddress,
-      couponCode: validatedCouponCode,
-      discount: discount > 0 ? discount : undefined,
+    // Update the order with the real Stripe session ID
+    await ctx.runMutation(internal.stripeHelpers.updateOrderSessionId, {
+      oldSessionId: pendingSessionId,
+      newSessionId: session.id,
     });
 
     return session.url;

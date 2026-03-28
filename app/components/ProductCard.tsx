@@ -54,7 +54,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           overflow: 'hidden',
         }}>
           <Image
-            src={product.imageUrl || '/images/1.png'}
+            src={product.imageUrl || '/images/1.webp'}
             alt={`${product.title} - ${product.color}`}
             width={200}
             height={280}

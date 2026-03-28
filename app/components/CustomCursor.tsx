@@ -1,13 +1,12 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null)
   const cursorLabelRef = useRef<HTMLSpanElement>(null)
-  const [isHovering, setIsHovering] = useState(false)
-  const [hoverText, setHoverText] = useState('')
+  const isHoveringRef = useRef(false)
 
   useEffect(() => {
     // Hide default cursor on desktop
@@ -26,7 +25,6 @@ export default function CustomCursor() {
     gsap.set(cursor, { xPercent: -50, yPercent: -50 })
 
     const moveCursor = (e: MouseEvent) => {
-      // Smooth follow with gsap
       gsap.to(cursor, {
         x: e.clientX,
         y: e.clientY,
@@ -39,42 +37,40 @@ export default function CustomCursor() {
       const target = e.target as HTMLElement
       const viewTarget = target.closest('[data-cursor-text]') as HTMLElement
       const isMagnetic = target.closest('.magnetic') || target.closest('button') || target.closest('a')
-      
+
       if (viewTarget) {
-        setHoverText(viewTarget.dataset.cursorText || 'VIEW')
-        setIsHovering(true)
+        label.textContent = viewTarget.dataset.cursorText || 'VIEW'
+        label.classList.add('visible')
+        isHoveringRef.current = true
         gsap.to(cursor, { scale: 3.5, backgroundColor: 'rgba(255, 69, 0, 0.9)', duration: 0.3 })
       } else if (isMagnetic) {
-        setIsHovering(true)
-        // A subtle scale up over links
+        isHoveringRef.current = true
         gsap.to(cursor, { scale: 1.5, backgroundColor: 'transparent', border: '1px solid rgba(255, 69, 0, 0.8)', duration: 0.3 })
       }
     }
 
     const handleHoverLeave = () => {
-      setIsHovering(false)
-      setHoverText('')
-      gsap.to(cursor, { 
-        scale: 1, 
-        backgroundColor: '#fff', 
+      isHoveringRef.current = false
+      label.textContent = ''
+      label.classList.remove('visible')
+      gsap.to(cursor, {
+        scale: 1,
+        backgroundColor: '#fff',
         border: 'none',
-        duration: 0.3 
+        duration: 0.3,
       })
     }
 
-    // Add pointer down effect
     const handleDown = () => {
-      gsap.to(cursor, { scale: isHovering ? 1.2 : 0.8, duration: 0.1 })
+      gsap.to(cursor, { scale: isHoveringRef.current ? 1.2 : 0.8, duration: 0.1 })
     }
     const handleUp = () => {
-      gsap.to(cursor, { scale: isHovering ? 1.5 : 1, duration: 0.1 })
+      gsap.to(cursor, { scale: isHoveringRef.current ? 1.5 : 1, duration: 0.1 })
     }
 
     window.addEventListener('mousemove', moveCursor)
     window.addEventListener('mousedown', handleDown)
     window.addEventListener('mouseup', handleUp)
-    
-    // Efficient event delegation
     document.body.addEventListener('mouseover', handleHoverEnter)
     document.body.addEventListener('mouseout', handleHoverLeave)
 
@@ -86,13 +82,11 @@ export default function CustomCursor() {
       document.body.removeEventListener('mouseout', handleHoverLeave)
       document.body.style.cursor = 'auto'
     }
-  }, [isHovering])
+  }, [])
 
   return (
     <div ref={cursorRef} className="custom-cursor">
-      <span ref={cursorLabelRef} className={`cursor-label ${isHovering && hoverText ? 'visible' : ''}`}>
-        {hoverText}
-      </span>
+      <span ref={cursorLabelRef} className="cursor-label" />
     </div>
   )
 }
