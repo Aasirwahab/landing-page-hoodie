@@ -9,7 +9,10 @@ export const usePageAnimations = () => {
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   const staggerCards = useCallback((selector: string, delay = 0) => {
-    if (prefersReduced()) return
+    if (prefersReduced()) {
+      gsap.set(selector, { opacity: 1, y: 0 })
+      return
+    }
     gsap.fromTo(
       selector,
       { opacity: 0, y: 20 },
@@ -45,7 +48,10 @@ export const usePageAnimations = () => {
   )
 
   const slideIn = useCallback((selector: string, direction: 'left' | 'right' | 'up' | 'down' = 'up', delay = 0) => {
-    if (prefersReduced()) return
+    if (prefersReduced()) {
+      gsap.set(selector, { opacity: 1, x: 0, y: 0 })
+      return
+    }
     const props: Record<string, number> = { opacity: 0 }
     if (direction === 'up') props.y = 20
     if (direction === 'down') props.y = -20
@@ -63,7 +69,10 @@ export const usePageAnimations = () => {
   }, [])
 
   const fadeInSequence = useCallback((selectors: string[]) => {
-    if (prefersReduced()) return
+    if (prefersReduced()) {
+      selectors.forEach((sel) => gsap.set(sel, { opacity: 1, y: 0 }))
+      return
+    }
     selectors.forEach((sel, i) => {
       gsap.fromTo(
         sel,
