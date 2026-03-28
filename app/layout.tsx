@@ -2,6 +2,7 @@ import './globals.css'
 import type { Metadata } from 'next'
 import Script from 'next/script'
 import ConvexClientProvider from './providers/ConvexClientProvider'
+import SmoothScrollProvider from './providers/SmoothScrollProvider'
 import { CartProvider } from './context/CartContext'
 import CartSidebar from './components/CartSidebar'
 
@@ -44,6 +45,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/* Google Fonts - preconnect for faster DNS resolution */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap"
+        />
+        {/* Remixicon - single load with preload hint */}
         <link
           rel="preload"
           href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css"
@@ -60,10 +69,12 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning>
         <ConvexClientProvider>
-          <CartProvider>
-            {children}
-            <CartSidebar />
-          </CartProvider>
+          <SmoothScrollProvider>
+            <CartProvider>
+              {children}
+              <CartSidebar />
+            </CartProvider>
+          </SmoothScrollProvider>
         </ConvexClientProvider>
       </body>
     </html>

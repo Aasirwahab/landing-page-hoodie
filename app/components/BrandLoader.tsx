@@ -17,41 +17,37 @@ export default function BrandLoader({ onComplete }: BrandLoaderProps) {
   const counterRef = useRef<HTMLSpanElement>(null)
   const overlayTopRef = useRef<HTMLDivElement>(null)
   const overlayBottomRef = useRef<HTMLDivElement>(null)
+  const progressContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    const counter = { val: 0 }
     const tl = gsap.timeline({
       onComplete: () => {
         if (!onComplete) return
         // Exit animation
-        const exitTl = gsap.timeline({ onComplete })
+        const exitTl = gsap.timeline({
+          onComplete,
+          defaults: { ease: 'power2.inOut' }
+        })
+        
         exitTl
-          .to(taglineRef.current, { opacity: 0, y: -20, duration: 0.3 })
-          .to(brandRef.current, { scale: 1.2, opacity: 0, duration: 0.5, ease: 'power2.in' }, '-=0.1')
-          .to(lineLeftRef.current, { scaleX: 0, transformOrigin: 'right center', duration: 0.4 }, '-=0.3')
-          .to(lineRightRef.current, { scaleX: 0, transformOrigin: 'left center', duration: 0.4 }, '-=0.4')
-          .to(overlayTopRef.current, { yPercent: -100, duration: 0.8, ease: 'power3.inOut' }, '-=0.2')
-          .to(overlayBottomRef.current, { yPercent: 100, duration: 0.8, ease: 'power3.inOut' }, '-=0.8')
+          .to([taglineRef.current, brandRef.current, lineLeftRef.current, lineRightRef.current, progressContainerRef.current], {
+            opacity: 0,
+            y: (i) => (i === 0 ? -20 : i === 1 ? -10 : 0), // Subtle movement for tagline and brand
+            duration: 0.4,
+            stagger: 0.05,
+          })
+          .to(overlayTopRef.current, { yPercent: -100, duration: 1, ease: 'power3.inOut' }, '-=0.2')
+          .to(overlayBottomRef.current, { yPercent: 100, duration: 1, ease: 'power3.inOut' }, '-=1')
+          .to(loaderRef.current, { opacity: 0, duration: 0.6, display: 'none' }, '-=0.4')
       },
     })
 
-    // Counter animation (DOM-only, no React re-renders)
-    const counter = { val: 0 }
-    gsap.to(counter, {
-      val: 100,
-      duration: 2.4,
-      ease: 'power2.inOut',
-      onUpdate: () => {
-        const v = Math.round(counter.val)
-        if (counterRef.current) counterRef.current.textContent = String(v)
-        if (progressBarRef.current) progressBarRef.current.style.width = `${v}%`
-      },
-    })
-
-    // Brand reveal sequence
+    // Initial state
     tl.set([brandRef.current, taglineRef.current], { opacity: 0 })
       .set([lineLeftRef.current, lineRightRef.current], { scaleX: 0 })
 
-    // Lines draw in
+    // 1. Lines draw in
     tl.to(lineLeftRef.current, {
       scaleX: 1,
       transformOrigin: 'right center',
@@ -70,23 +66,34 @@ export default function BrandLoader({ onComplete }: BrandLoaderProps) {
         '-=0.8'
       )
 
-    // Brand name appears letter by letter feel
+    // 2. Counter animation (Now integrated into timeline)
+    tl.to(counter, {
+      val: 100,
+      duration: 2.2,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const v = Math.round(counter.val)
+        if (counterRef.current) counterRef.current.textContent = String(v)
+        if (progressBarRef.current) progressBarRef.current.style.width = `${v}%`
+      },
+    }, '-=0.4')
+
+    // 3. Brand name and tagline reveal (Timed with counter)
     tl.to(brandRef.current, {
       opacity: 1,
       duration: 0.6,
       ease: 'power2.out',
-    }, '-=0.4')
+    }, '-=1.8')
 
-    // Tagline slides up
     tl.to(taglineRef.current, {
       opacity: 1,
       y: 0,
       duration: 0.5,
       ease: 'power2.out',
-    }, '-=0.1')
+    }, '-=1.4')
 
-    // Hold for a beat
-    tl.to({}, { duration: 0.6 })
+    // 4. HOLD for a beat at 100% - This ensures the 100% state stays visible
+    tl.to({}, { duration: 1.2 })
 
     return () => {
       tl.kill()
@@ -94,161 +101,48 @@ export default function BrandLoader({ onComplete }: BrandLoaderProps) {
   }, [onComplete])
 
   return (
-    <div
-      ref={loaderRef}
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 10000,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: '#0a0a0a',
-        overflow: 'hidden',
-      }}
-    >
+    <div ref={loaderRef} className="brand-loader">
       {/* Split overlays for curtain exit */}
-      <div
-        ref={overlayTopRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '50%',
-          background: '#0a0a0a',
-          zIndex: 2,
-        }}
-      />
-      <div
-        ref={overlayBottomRef}
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '50%',
-          background: '#0a0a0a',
-          zIndex: 2,
-        }}
-      />
+      <div ref={overlayTopRef} className="brand-loader-overlay-top" />
+      <div ref={overlayBottomRef} className="brand-loader-overlay-bottom" />
 
       {/* Center content */}
-      <div style={{ textAlign: 'center', zIndex: 3, position: 'relative' }}>
+      <div className="brand-loader-content">
         {/* Top line */}
-        <div
-          ref={lineLeftRef}
-          style={{
-            width: '60px',
-            height: '1px',
-            background: 'linear-gradient(90deg, transparent, rgba(255,107,53,0.8))',
-            margin: '0 auto 24px',
-          }}
-        />
+        <div ref={lineLeftRef} className="brand-loader-line-top" />
 
         {/* Brand name */}
-        <div ref={brandRef} style={{ opacity: 0 }}>
-          <h1
-            style={{
-              fontFamily: '"Playfair Display", serif',
-              fontSize: 'clamp(36px, 6vw, 72px)',
-              fontWeight: 400,
-              letterSpacing: '12px',
-              color: '#fff',
-              margin: 0,
-              lineHeight: 1,
-            }}
-          >
-            POSSESSD
-          </h1>
+        <div ref={brandRef} className="brand-loader-name-wrap">
+          <h1 className="brand-loader-name">POSSESSD</h1>
         </div>
 
         {/* Bottom line */}
-        <div
-          ref={lineRightRef}
-          style={{
-            width: '60px',
-            height: '1px',
-            background: 'linear-gradient(90deg, rgba(255,107,53,0.8), transparent)',
-            margin: '24px auto 0',
-          }}
-        />
+        <div ref={lineRightRef} className="brand-loader-line-bottom" />
 
         {/* Tagline */}
-        <div
-          ref={taglineRef}
-          style={{
-            opacity: 0,
-            transform: 'translateY(10px)',
-            marginTop: '20px',
-          }}
-        >
-          <p
-            style={{
-              fontSize: '11px',
-              letterSpacing: '4px',
-              textTransform: 'uppercase',
-              color: 'rgba(255,255,255,0.4)',
-              fontWeight: 300,
-            }}
-          >
-            Premium Outerwear
-          </p>
+        <div ref={taglineRef} className="brand-loader-tagline-wrap">
+          <p className="brand-loader-tagline">Premium Outerwear</p>
         </div>
 
         {/* Progress bar */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-60px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-          }}
-        >
-          <div
-            style={{
-              width: '120px',
-              height: '1px',
-              background: 'rgba(255,255,255,0.1)',
-              overflow: 'hidden',
-            }}
-          >
-            <div
-              ref={progressBarRef}
-              style={{
-                width: '0%',
-                height: '100%',
-                background: 'rgba(255,107,53,0.6)',
-              }}
-            />
+        <div ref={progressContainerRef} className="brand-loader-progress-wrap">
+          <div className="brand-loader-progress-rail">
+            <div ref={progressBarRef} className="brand-loader-progress-bar" />
           </div>
-          <span
-            ref={counterRef}
-            style={{
-              fontSize: '10px',
-              letterSpacing: '2px',
-              color: 'rgba(255,255,255,0.3)',
-              fontFamily: '"Inter", sans-serif',
-              fontWeight: 300,
-              minWidth: '24px',
-            }}
-          >
+          <span ref={counterRef} className="brand-loader-counter">
             0
           </span>
         </div>
       </div>
 
       {/* Corner accents */}
-      <div style={{ position: 'absolute', top: '30px', left: '30px', zIndex: 3 }}>
-        <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.1)' }} />
-        <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)' }} />
+      <div className="brand-loader-accent-top">
+        <div className="brand-loader-accent-line-h" />
+        <div className="brand-loader-accent-line-v" />
       </div>
-      <div style={{ position: 'absolute', bottom: '30px', right: '30px', zIndex: 3 }}>
-        <div style={{ width: '20px', height: '1px', background: 'rgba(255,255,255,0.1)', marginLeft: 'auto' }} />
-        <div style={{ width: '1px', height: '20px', background: 'rgba(255,255,255,0.1)', marginLeft: 'auto' }} />
+      <div className="brand-loader-accent-bottom">
+        <div className="brand-loader-accent-line-h right" />
+        <div className="brand-loader-accent-line-v right" />
       </div>
     </div>
   )

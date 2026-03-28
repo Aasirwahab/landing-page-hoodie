@@ -63,7 +63,7 @@ export default function CartSidebar() {
       />
 
       {/* Sidebar */}
-      <div className="cart-sidebar">
+      <div className="cart-sidebar" data-lenis-prevent>
         {/* Header */}
         <div className="cart-header">
           <h2 className="cart-header-title">

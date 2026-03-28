@@ -1,22 +1,27 @@
 'use client'
 
 import { useEffect, useRef, useState, useCallback } from 'react'
+import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
 import { gsap } from 'gsap'
 
-// Premium Components
-import CustomCursor from './components/CustomCursor'
-import AnatomySection from './components/AnatomySection'
-import FabricSection from './components/FabricSection'
-import CampaignSection from './components/CampaignSection'
-import MagneticWrapper from './components/MagneticWrapper'
-
+// Eagerly loaded (above fold)
 import Navigation from './components/Navigation'
 import CartSidebar from './components/CartSidebar'
 import BrandLoader from './components/BrandLoader'
+import CustomCursor from './components/CustomCursor'
+
+// Below-fold components (kept as regular imports since they use data-section/data-anim
+// attributes that must exist when ScrollTrigger initializes)
+import AnatomySection from './components/AnatomySection'
+import FabricSection from './components/FabricSection'
+import MagneticWrapper from './components/MagneticWrapper'
+
+// Lazy-loaded: CampaignSection has its own internal ScrollTrigger so it's safe to defer
+const CampaignSection = dynamic(() => import('./components/CampaignSection'), { ssr: false })
 import { useCartActions } from './context/CartContext'
 import { fallbackProducts } from './data/products'
 import { Product } from './types'
@@ -53,58 +58,53 @@ export default function Home() {
     setMounted(true)
   }, [])
 
-  // ScrollTrigger-like animations using IntersectionObserver + GSAP
+  // ScrollTrigger-powered scroll animations (synced with Lenis smooth scroll)
   useEffect(() => {
     if (loading || !mounted) return
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const section = entry.target as HTMLElement
-          const animElements = section.querySelectorAll('[data-anim]')
-          animElements.forEach((el, i) => {
-            const htmlEl = el as HTMLElement
-            const animType = htmlEl.dataset.anim
-            const delay = parseFloat(htmlEl.dataset.animDelay || '0') + i * 0.08
+    let scrollTriggers: any[] = []
 
-            switch (animType) {
-              case 'fade-up':
-                gsap.fromTo(htmlEl, { opacity: 0, y: 60 }, { opacity: 1, y: 0, duration: 1, delay, ease: 'power3.out' })
-                break
-              case 'fade-in':
-                gsap.fromTo(htmlEl, { opacity: 0 }, { opacity: 1, duration: 1.2, delay, ease: 'power2.out' })
-                break
-              case 'slide-left':
-                gsap.fromTo(htmlEl, { opacity: 0, x: -80 }, { opacity: 1, x: 0, duration: 1, delay, ease: 'power3.out' })
-                break
-              case 'slide-right':
-                gsap.fromTo(htmlEl, { opacity: 0, x: 80 }, { opacity: 1, x: 0, duration: 1, delay, ease: 'power3.out' })
-                break
-              case 'scale-in':
-                gsap.fromTo(htmlEl, { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 1.2, delay, ease: 'power3.out' })
-                break
-              case 'clip-reveal':
-                gsap.fromTo(htmlEl, { clipPath: 'inset(100% 0 0 0)' }, { clipPath: 'inset(0% 0 0 0)', duration: 1.2, delay, ease: 'power3.inOut' })
-                break
-              case 'line-draw':
-                gsap.fromTo(htmlEl, { scaleX: 0 }, { scaleX: 1, duration: 1, delay, ease: 'power3.inOut' })
-                break
-            }
+    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
+      gsap.registerPlugin(ScrollTrigger)
+
+      const sections = containerRef.current?.querySelectorAll('[data-section]')
+      sections?.forEach((section) => {
+        const animElements = section.querySelectorAll('[data-anim]')
+        animElements.forEach((el, i) => {
+          const htmlEl = el as HTMLElement
+          const animType = htmlEl.dataset.anim
+          const delay = parseFloat(htmlEl.dataset.animDelay || '0') + i * 0.08
+
+          const animProps: Record<string, any> = {
+            'fade-up': { from: { opacity: 0, y: 60 }, to: { opacity: 1, y: 0, duration: 1, ease: 'power3.out' } },
+            'fade-in': { from: { opacity: 0 }, to: { opacity: 1, duration: 1.2, ease: 'power2.out' } },
+            'slide-left': { from: { opacity: 0, x: -80 }, to: { opacity: 1, x: 0, duration: 1, ease: 'power3.out' } },
+            'slide-right': { from: { opacity: 0, x: 80 }, to: { opacity: 1, x: 0, duration: 1, ease: 'power3.out' } },
+            'scale-in': { from: { opacity: 0, scale: 0.85 }, to: { opacity: 1, scale: 1, duration: 1.2, ease: 'power3.out' } },
+            'clip-reveal': { from: { clipPath: 'inset(100% 0 0 0)' }, to: { clipPath: 'inset(0% 0 0 0)', duration: 1.2, ease: 'power3.inOut' } },
+            'line-draw': { from: { scaleX: 0 }, to: { scaleX: 1, duration: 1, ease: 'power3.inOut' } },
+          }
+
+          const anim = animProps[animType || '']
+          if (!anim) return
+
+          const tween = gsap.fromTo(htmlEl, anim.from, {
+            ...anim.to,
+            delay,
+            scrollTrigger: {
+              trigger: htmlEl,
+              start: 'top 85%',
+              toggleActions: 'play none none none',
+            },
           })
-          observer.unobserve(entry.target)
-        }
+          scrollTriggers.push(tween.scrollTrigger)
+        })
       })
-    }
-
-    const observer = new IntersectionObserver(observerCallback, {
-      threshold: 0.15,
-      rootMargin: '0px 0px -50px 0px',
     })
 
-    const sections = containerRef.current?.querySelectorAll('[data-section]')
-    sections?.forEach((s) => observer.observe(s))
-
-    return () => observer.disconnect()
+    return () => {
+      scrollTriggers.forEach((st) => st?.kill())
+    }
   }, [loading, mounted])
 
   // Hero entrance animation

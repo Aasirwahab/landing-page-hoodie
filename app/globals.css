@@ -1,10 +1,9 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,700&display=swap");
-@import url("https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css");
+/* Fonts loaded via <link> tags in layout.tsx for non-blocking performance */
 
 @font-face {
   font-family: "P22";
   src: url("/fonts/font.ttf") format("truetype");
+  font-display: swap;
 }
 
 :root {
@@ -27,6 +26,22 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 html {
@@ -120,17 +135,20 @@ body {
    ============================ */
 [data-anim] {
   opacity: 0;
+  will-change: opacity, transform;
 }
 
 [data-anim="clip-reveal"] {
   opacity: 1;
-  clip-path: inset(100% 0 0 0);
   -webkit-clip-path: inset(100% 0 0 0);
+  clip-path: inset(100% 0 0 0);
+  will-change: clip-path;
 }
 
 [data-anim="line-draw"] {
   opacity: 1;
   transform: scaleX(0);
+  will-change: transform;
 }
 
 /* ============================
@@ -2344,6 +2362,9 @@ body {
 /* ============================
    Campaign Cinematic Section
    ============================ */
+/* ============================
+   Campaign Video Section
+   ============================ */
 .campaign-section {
   width: 100%;
   height: 100vh;
@@ -2362,64 +2383,302 @@ body {
   overflow: hidden;
 }
 
+/* Poster image (fades out when video plays) */
 .campaign-bg {
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
-  min-height: 100vh;
-  transform-origin: center;
+  inset: 0;
+  z-index: 2;
+  transition: opacity 1.2s ease;
+}
+
+.campaign-poster-hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .campaign-image {
   object-fit: cover;
-  opacity: 0.8;
 }
 
+/* Video element */
+.campaign-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+/* Cinematic gradient overlays */
+.campaign-gradient-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, transparent 100%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.campaign-gradient-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 40%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 100%);
+  z-index: 5;
+  pointer-events: none;
+}
+
+/* Center play/pause overlay */
 .campaign-overlay {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.35);
   z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
-  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+
+.campaign-overlay-hidden {
+  opacity: 0;
+  pointer-events: none !important;
 }
 
 .campaign-play-btn {
   width: 120px;
   height: 120px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1.5px solid rgba(255, 255, 255, 0.35);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.05);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  transition: transform 0.3s ease;
+  background: rgba(255, 255, 255, 0.06);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: all 0.4s var(--ease-out-expo);
+  cursor: pointer;
 }
 
-.campaign-section:hover .campaign-play-btn {
-  transform: scale(1.05);
+.campaign-play-btn:hover {
+  transform: scale(1.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 60px rgba(255, 107, 53, 0.15);
 }
 
 .campaign-play-btn i {
   color: #fff;
   font-size: 48px;
-  margin-left: 8px; /* Optical center */
+  margin-left: 6px;
 }
 
+/* Invisible click area when playing (to pause) */
+.campaign-click-area {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  cursor: pointer;
+}
+
+/* Cinematic text overlay */
+.campaign-text-overlay {
+  position: absolute;
+  bottom: 100px;
+  left: 60px;
+  z-index: 12;
+  pointer-events: none;
+  max-width: 600px;
+}
+
+.campaign-label {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--primary-orange);
+  font-weight: 500;
+  margin-bottom: 16px;
+  opacity: 0;
+}
+
+.campaign-headline {
+  font-family: "Playfair Display", serif;
+  font-size: clamp(32px, 4vw, 56px);
+  font-weight: 400;
+  color: #fff;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  letter-spacing: -0.5px;
+  opacity: 0;
+}
+
+.campaign-tagline {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.6);
+  font-weight: 300;
+  line-height: 1.6;
+  opacity: 0;
+}
+
+/* Bottom controls bar */
+.campaign-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 15;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 28px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.5s var(--ease-out-expo);
+}
+
+.campaign-controls-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.campaign-section:hover .campaign-controls-visible {
+  opacity: 1;
+}
+
+.campaign-control-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 20px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.campaign-control-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.campaign-time {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  min-width: 36px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* Progress bar */
+.campaign-progress-bar {
+  flex: 1;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  cursor: pointer;
+}
+
+.campaign-progress-rail {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  transform: translateY(-50%);
+}
+
+.campaign-progress-fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--primary-orange), var(--secondary-orange));
+  border-radius: 2px;
+  transform: translateY(-50%);
+  transition: width 0.1s linear;
+}
+
+.campaign-progress-thumb {
+  position: absolute;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  background: var(--primary-orange);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  box-shadow: 0 0 10px rgba(255, 107, 53, 0.5);
+}
+
+.campaign-progress-bar:hover .campaign-progress-thumb {
+  opacity: 1;
+}
+
+.campaign-progress-bar:hover .campaign-progress-rail {
+  height: 5px;
+}
+
+.campaign-progress-bar:hover .campaign-progress-fill {
+  height: 5px;
+}
+
+/* ============================
+   Campaign - Responsive
+   ============================ */
 @media (max-width: 768px) {
   .campaign-section {
     height: 60vh;
     margin: 60px 0;
   }
+
   .campaign-play-btn {
     width: 80px;
     height: 80px;
   }
+
   .campaign-play-btn i {
     font-size: 32px;
+    margin-left: 4px;
+  }
+
+  .campaign-text-overlay {
+    bottom: 80px;
+    left: 24px;
+    right: 24px;
+    max-width: none;
+  }
+
+  .campaign-headline {
+    font-size: clamp(24px, 6vw, 36px);
+  }
+
+  .campaign-tagline {
+    font-size: 13px;
+  }
+
+  .campaign-controls {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .campaign-time {
+    font-size: 11px;
   }
 }
 
@@ -2469,4 +2728,153 @@ body {
 @keyframes cinematic-pan {
   0% { transform: scale(1.05) translate(0%, 0%); }
   100% { transform: scale(1.15) translate(-2%, 2%); }
+}
+
+/* ============================
+   BRAND LOADER
+   ============================ */
+.brand-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0a0a0a;
+  overflow: hidden;
+}
+
+.brand-loader-overlay-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: #0a0a0a;
+  z-index: 2;
+}
+
+.brand-loader-overlay-bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: #0a0a0a;
+  z-index: 2;
+}
+
+.brand-loader-content {
+  text-align: center;
+  z-index: 3;
+  position: relative;
+}
+
+.brand-loader-line-top {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,53,0.8));
+  margin: 0 auto 24px;
+}
+
+.brand-loader-name-wrap {
+  opacity: 0;
+}
+
+.brand-loader-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(36px, 6vw, 72px);
+  font-weight: 400;
+  letter-spacing: 12px;
+  color: #fff;
+  margin: 0;
+  line-height: 1;
+}
+
+.brand-loader-line-bottom {
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,107,53,0.8), transparent);
+  margin: 24px auto 0;
+}
+
+.brand-loader-tagline-wrap {
+  opacity: 0;
+  transform: translateY(10px);
+  margin-top: 20px;
+}
+
+.brand-loader-tagline {
+  font-size: 11px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.4);
+  font-weight: 300;
+}
+
+.brand-loader-progress-wrap {
+  position: absolute;
+  bottom: -60px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-loader-progress-rail {
+  width: 120px;
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+  overflow: hidden;
+}
+
+.brand-loader-progress-bar {
+  width: 0%;
+  height: 100%;
+  background: rgba(255,107,53,0.6);
+}
+
+.brand-loader-counter {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  min-width: 24px;
+}
+
+.brand-loader-accent-top {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  z-index: 3;
+}
+
+.brand-loader-accent-bottom {
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
+  z-index: 3;
+}
+
+.brand-loader-accent-line-h {
+  width: 20px;
+  height: 1px;
+  background: rgba(255,255,255,0.1);
+}
+
+.brand-loader-accent-line-v {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,0.1);
+}
+
+.brand-loader-accent-line-h.right {
+  margin-right: 0;
+  margin-left: auto;
+}
+
+.brand-loader-accent-line-v.right {
+  margin-left: auto;
 }
