@@ -47,8 +47,9 @@ export default function Navigation() {
             <button
               onClick={handleCartClick}
               className={`cart-toggle mobile-only ${isCartAnimating ? ' cart-toggle--animating' : ''}`}
+              aria-label={`Shopping cart with ${state.itemCount} items`}
             >
-              <i className="ri-shopping-bag-fill cart-toggle-icon"></i>
+              <i className="ri-shopping-bag-fill cart-toggle-icon" aria-hidden="true"></i>
               {state.itemCount > 0 && (
                 <span className="cart-badge">{state.itemCount > 99 ? '99+' : state.itemCount}</span>
               )}
@@ -128,7 +129,12 @@ export default function Navigation() {
 
       {/* Mobile Menu Backdrop */}
       {isMobileMenuOpen && (
-        <div className="mobile-menu-backdrop" onClick={() => setIsMobileMenuOpen(false)} />
+        <div
+          className="mobile-menu-backdrop"
+          onClick={() => setIsMobileMenuOpen(false)}
+          role="presentation"
+          aria-hidden="true"
+        />
       )}
     </>
   )

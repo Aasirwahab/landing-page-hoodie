@@ -17,6 +17,11 @@ export default function SmoothScrollProvider({ children }: { children: React.Rea
   const [lenis, setLenis] = useState<Lenis | null>(null)
 
   useEffect(() => {
+    // Respect prefers-reduced-motion
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return
+    }
+
     const instance = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

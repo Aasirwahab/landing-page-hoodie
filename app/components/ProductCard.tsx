@@ -69,6 +69,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           <button
             onClick={handleQuickAdd}
             disabled={isAdding}
+            aria-label={isAdding ? `Added ${product.title} to cart` : `Quick add ${product.title} to cart`}
             style={{
               position: 'absolute',
               bottom: '16px',
@@ -89,7 +90,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
             }}
           >
-            <i className={isAdding ? 'ri-check-line' : 'ri-add-line'} style={{ fontSize: '20px' }}></i>
+            <i className={isAdding ? 'ri-check-line' : 'ri-add-line'} style={{ fontSize: '20px' }} aria-hidden="true"></i>
           </button>
 
           {/* Badges */}

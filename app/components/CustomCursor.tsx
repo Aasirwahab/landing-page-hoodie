@@ -12,21 +12,32 @@ export default function CustomCursor() {
   const isMovingRef = useRef(false)
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia('(pointer: fine)').matches) return
+    if (typeof window === 'undefined') return
+    if (!window.matchMedia('(pointer: fine)').matches) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
 
     document.body.style.cursor = 'none'
+
+    // Restore cursor on keyboard usage so keyboard users aren't stuck without a cursor
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        document.body.style.cursor = 'auto'
+      }
+    }
+    const handleMouseMove = () => {
+      document.body.style.cursor = 'none'
+    }
+
     const cursor = cursorRef.current
     const label = cursorLabelRef.current
     if (!cursor || !label) return
 
-    // Smooth lerp loop — single RAF, pauses when cursor is idle
     const lerp = (a: number, b: number, n: number) => a + (b - a) * n
 
     const animate = () => {
       const dx = posRef.current.x - currentRef.current.x
       const dy = posRef.current.y - currentRef.current.y
 
-      // Stop the loop when close enough to target (idle)
       if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) {
         currentRef.current.x = posRef.current.x
         currentRef.current.y = posRef.current.y
@@ -52,7 +63,6 @@ export default function CustomCursor() {
     const moveCursor = (e: MouseEvent) => {
       posRef.current.x = e.clientX
       posRef.current.y = e.clientY
-      // On first move, snap the cursor instantly so it doesn't animate from (0,0)
       if (currentRef.current.x === 0 && currentRef.current.y === 0) {
         currentRef.current.x = e.clientX
         currentRef.current.y = e.clientY
@@ -97,16 +107,20 @@ export default function CustomCursor() {
     }
 
     window.addEventListener('mousemove', moveCursor, { passive: true })
+    window.addEventListener('mousemove', handleMouseMove, { passive: true })
     window.addEventListener('mousedown', handleDown)
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('keydown', handleKeyDown)
     document.body.addEventListener('mouseover', handleHoverEnter)
     document.body.addEventListener('mouseout', handleHoverLeave)
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
       window.removeEventListener('mousemove', moveCursor)
+      window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mousedown', handleDown)
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('keydown', handleKeyDown)
       document.body.removeEventListener('mouseover', handleHoverEnter)
       document.body.removeEventListener('mouseout', handleHoverLeave)
       document.body.style.cursor = 'auto'
@@ -114,7 +128,7 @@ export default function CustomCursor() {
   }, [])
 
   return (
-    <div ref={cursorRef} className="custom-cursor">
+    <div ref={cursorRef} className="custom-cursor" aria-hidden="true">
       <span ref={cursorLabelRef} className="cursor-label" />
     </div>
   )

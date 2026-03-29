@@ -74,104 +74,51 @@ export default function OrderTimeline({
   }, [currentStatus])
 
   return (
-    <div
-      ref={timelineRef}
-      style={{
-        display: 'flex',
-        alignItems: 'flex-start',
-        gap: '0',
-        padding: '24px 0',
-        overflowX: 'auto',
-      }}
-    >
+    <div ref={timelineRef} className="order-timeline">
       {STEPS.map((step, i) => {
         const isCompleted = !isCancelled && activeStepIndex >= i
         const isCurrent = step.key === currentStatus
         const timestamp = getTimestamp(step.key)
         const isShippedStep = step.key === 'shipped'
 
+        const circleClass = [
+          'timeline-circle',
+          isCancelled && isCurrent ? 'cancelled' : '',
+          isCompleted ? 'completed' : '',
+          isCurrent && !isCancelled ? 'current' : '',
+        ].filter(Boolean).join(' ')
+
+        const iconColor = isCancelled && isCurrent
+          ? '#f87171'
+          : isCompleted
+            ? '#FF6B35'
+            : 'rgba(255,255,255,0.2)'
+
         return (
           <div
             key={step.key}
-            style={{ display: 'flex', alignItems: 'flex-start', flex: i < STEPS.length - 1 ? 1 : 'none' }}
+            className="timeline-step-wrapper"
+            style={{ flex: i < STEPS.length - 1 ? 1 : 'none' }}
           >
             {/* Step */}
-            <div
-              className="timeline-step"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                minWidth: '80px',
-                opacity: 0,
-              }}
-            >
+            <div className="timeline-step">
               {/* Circle */}
-              <div
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: isCancelled && isCurrent
-                    ? 'rgba(248,113,113,0.15)'
-                    : isCompleted
-                      ? 'rgba(255,107,53,0.15)'
-                      : 'rgba(255,255,255,0.04)',
-                  border: `2px solid ${
-                    isCancelled && isCurrent
-                      ? '#f87171'
-                      : isCompleted
-                        ? '#FF6B35'
-                        : 'rgba(255,255,255,0.1)'
-                  }`,
-                  transition: 'all 0.3s ease',
-                  ...(isCurrent && !isCancelled
-                    ? {
-                        boxShadow: '0 0 12px rgba(255,107,53,0.2)',
-                      }
-                    : {}),
-                }}
-              >
+              <div className={circleClass}>
                 <i
                   className={isCancelled && isCurrent ? 'ri-close-line' : step.icon}
-                  style={{
-                    fontSize: '16px',
-                    color: isCancelled && isCurrent
-                      ? '#f87171'
-                      : isCompleted
-                        ? '#FF6B35'
-                        : 'rgba(255,255,255,0.2)',
-                  }}
+                  style={{ fontSize: '16px', color: iconColor }}
+                  aria-hidden="true"
                 />
               </div>
 
               {/* Label */}
-              <p
-                style={{
-                  fontSize: '11px',
-                  fontWeight: isCurrent ? '600' : '400',
-                  marginTop: '8px',
-                  color: isCompleted ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.3)',
-                  textAlign: 'center',
-                  whiteSpace: 'nowrap',
-                }}
-              >
+              <p className={`timeline-label ${isCurrent ? 'timeline-label--current' : ''} ${isCompleted ? 'timeline-label--completed' : ''}`}>
                 {isCancelled && isCurrent ? 'Cancelled' : step.label}
               </p>
 
               {/* Timestamp */}
               {timestamp && (
-                <p
-                  style={{
-                    fontSize: '10px',
-                    color: 'rgba(255,255,255,0.3)',
-                    marginTop: '2px',
-                    textAlign: 'center',
-                  }}
-                >
+                <p className="timeline-timestamp">
                   {formatDate(timestamp)}
                   <br />
                   {formatTime(timestamp)}
@@ -180,17 +127,7 @@ export default function OrderTimeline({
 
               {/* Carrier info on shipped step */}
               {isShippedStep && isCompleted && shippingCarrier && (
-                <p
-                  style={{
-                    fontSize: '10px',
-                    color: '#FF6B35',
-                    marginTop: '4px',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  {shippingCarrier}
-                </p>
+                <p className="timeline-carrier">{shippingCarrier}</p>
               )}
 
               {/* Tracking link on shipped step */}
@@ -199,30 +136,15 @@ export default function OrderTimeline({
                   href={trackingUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  style={{
-                    fontSize: '10px',
-                    color: '#FF6B35',
-                    marginTop: '2px',
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '2px',
-                  }}
+                  className="timeline-track-link"
                 >
-                  Track <i className="ri-external-link-line" style={{ fontSize: '10px' }}></i>
+                  Track <i className="ri-external-link-line" style={{ fontSize: '10px' }} aria-hidden="true"></i>
                 </a>
               )}
 
               {/* Estimated delivery on delivered step */}
               {step.key === 'delivered' && !isCompleted && estimatedDelivery && (
-                <p
-                  style={{
-                    fontSize: '10px',
-                    color: 'rgba(255,255,255,0.4)',
-                    marginTop: '2px',
-                    textAlign: 'center',
-                  }}
-                >
+                <p className="timeline-timestamp">
                   Est. {formatDate(estimatedDelivery)}
                 </p>
               )}
@@ -230,27 +152,9 @@ export default function OrderTimeline({
 
             {/* Connecting line */}
             {i < STEPS.length - 1 && (
-              <div
-                style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  height: '36px',
-                  padding: '0 4px',
-                }}
-              >
+              <div className="timeline-line-wrapper">
                 <div
-                  className="timeline-line"
-                  style={{
-                    height: '2px',
-                    width: '100%',
-                    background:
-                      !isCancelled && activeStepIndex > i
-                        ? '#FF6B35'
-                        : 'rgba(255,255,255,0.08)',
-                    transformOrigin: 'left center',
-                    transition: 'background 0.3s ease',
-                  }}
+                  className={`timeline-line ${!isCancelled && activeStepIndex > i ? 'timeline-line--active' : ''}`}
                 />
               </div>
             )}
