@@ -1,18 +1,20 @@
 'use client'
 
 import React, { useRef, useLayoutEffect, useState, useCallback, useEffect } from 'react'
-import Image from 'next/image'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 export default function CampaignSection() {
   const sectionRef = useRef<HTMLElement>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
+  const progressFillRef = useRef<HTMLDivElement>(null)
+  const progressThumbRef = useRef<HTMLDivElement>(null)
+  const timeCurrentRef = useRef<HTMLSpanElement>(null)
+  const timeDurationRef = useRef<HTMLSpanElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [hasStarted, setHasStarted] = useState(false)
-  const [progress, setProgress] = useState(0)
-  const [currentTime, setCurrentTime] = useState('0:00')
-  const [duration, setDuration] = useState('0:00')
 
   // Format time helper
   const formatTime = (seconds: number) => {
@@ -25,53 +27,53 @@ export default function CampaignSection() {
   useLayoutEffect(() => {
     if (typeof window === 'undefined') return
 
-    import('gsap').then(({ gsap }) => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        gsap.registerPlugin(ScrollTrigger)
+    const section = sectionRef.current
+    if (!section) return
 
-        const section = sectionRef.current
-        if (!section) return
+    const triggers: ScrollTrigger[] = []
 
-        const wrapper = section.querySelector('.campaign-video-wrapper')
-        if (wrapper) {
-          gsap.fromTo(
-            wrapper,
-            { clipPath: 'inset(15% 0 15% 0)' },
-            {
-              clipPath: 'inset(0% 0 0% 0)',
-              ease: 'power2.inOut',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 75%',
-                end: 'center center',
-                scrub: 1.5,
-              },
-            }
-          )
+    const wrapper = section.querySelector('.campaign-video-wrapper')
+    if (wrapper) {
+      const t = gsap.fromTo(
+        wrapper,
+        { clipPath: 'inset(15% 0 15% 0)' },
+        {
+          clipPath: 'inset(0% 0 0% 0)',
+          ease: 'power2.inOut',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 75%',
+            end: 'center center',
+            scrub: 1.5,
+          },
         }
+      )
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger)
+    }
 
-        // Animate the overlay text on scroll
-        const textElements = section.querySelectorAll('.campaign-text-reveal')
-        textElements.forEach((el, i) => {
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 40 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 1,
-              delay: i * 0.15,
-              ease: 'power3.out',
-              scrollTrigger: {
-                trigger: section,
-                start: 'top 50%',
-                toggleActions: 'play none none none',
-              },
-            }
-          )
-        })
-      })
+    // Animate the overlay text on scroll
+    const textElements = section.querySelectorAll('.campaign-text-reveal')
+    textElements.forEach((el, i) => {
+      const t = gsap.fromTo(
+        el,
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          delay: i * 0.15,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: section,
+            start: 'top 50%',
+            toggleActions: 'play none none none',
+          },
+        }
+      )
+      if (t.scrollTrigger) triggers.push(t.scrollTrigger)
     })
+
+    return () => { triggers.forEach(st => st.kill()) }
   }, [])
 
   // Auto-play video when section enters viewport
@@ -105,26 +107,27 @@ export default function CampaignSection() {
     return () => observer.disconnect()
   }, [])
 
-  // Track video progress
+  // Track video progress — direct DOM updates, no React re-renders
   useEffect(() => {
     const video = videoRef.current
     if (!video) return
 
     const handleTimeUpdate = () => {
-      if (video.duration) {
-        setProgress((video.currentTime / video.duration) * 100)
-        setCurrentTime(formatTime(video.currentTime))
-      }
+      if (!video.duration) return
+      const pct = (video.currentTime / video.duration) * 100
+      if (progressFillRef.current) progressFillRef.current.style.width = `${pct}%`
+      if (progressThumbRef.current) progressThumbRef.current.style.left = `${pct}%`
+      if (timeCurrentRef.current) timeCurrentRef.current.textContent = formatTime(video.currentTime)
     }
 
     const handleLoadedMetadata = () => {
-      setDuration(formatTime(video.duration))
+      if (timeDurationRef.current) timeDurationRef.current.textContent = formatTime(video.duration)
     }
 
     const handleEnded = () => {
       setIsPlaying(false)
-      setProgress(0)
-      // Loop smoothly
+      if (progressFillRef.current) progressFillRef.current.style.width = '0%'
+      if (progressThumbRef.current) progressThumbRef.current.style.left = '0%'
       video.currentTime = 0
       video.play().then(() => setIsPlaying(true)).catch(() => {})
     }
@@ -182,21 +185,7 @@ export default function CampaignSection() {
           if (el) el.style.setProperty('clip-path', 'inset(15% 0 15% 0)')
         }}
       >
-        {/* Poster image (shown until video loads) */}
-        <div className={`campaign-bg ${hasStarted ? 'campaign-poster-hidden' : ''}`}>
-          <Image
-            src="/images/campaign_shot.webp"
-            alt="POSSESSD Campaign"
-            fill
-            quality={75}
-            sizes="100vw"
-            placeholder="blur"
-            blurDataURL="data:image/webp;base64,UklGRjYAAABXRUJQVlA4ICoAAACwAQCdASoKAAoABUB8JYgCdAEOO2gAAP6h55PSaehYi4WokqXk/RGAAAA="
-            className="campaign-image"
-          />
-        </div>
-
-        {/* Actual video */}
+        {/* Video */}
         <video
           ref={videoRef}
           className="campaign-video"
@@ -247,7 +236,7 @@ export default function CampaignSection() {
             <i className={`ri-${isPlaying ? 'pause' : 'play'}-fill`}></i>
           </button>
 
-          <span className="campaign-time">{currentTime}</span>
+          <span ref={timeCurrentRef} className="campaign-time">0:00</span>
 
           <div
             ref={progressRef}
@@ -255,17 +244,11 @@ export default function CampaignSection() {
             onClick={handleProgressClick}
           >
             <div className="campaign-progress-rail" />
-            <div
-              className="campaign-progress-fill"
-              style={{ width: `${progress}%` }}
-            />
-            <div
-              className="campaign-progress-thumb"
-              style={{ left: `${progress}%` }}
-            />
+            <div ref={progressFillRef} className="campaign-progress-fill" />
+            <div ref={progressThumbRef} className="campaign-progress-thumb" />
           </div>
 
-          <span className="campaign-time">{duration}</span>
+          <span ref={timeDurationRef} className="campaign-time">0:00</span>
 
           <button
             className="campaign-control-btn"

@@ -34,53 +34,36 @@ export default function Footer() {
             Shop
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Link href="/shop" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>All Products</Link>
-            <Link href="/men" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>Men</Link>
-            <Link href="/women" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>Women</Link>
-            <Link href="/customize" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px', transition: 'color 0.2s' }}>Customise</Link>
+            <Link href="/shop" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>All Products</Link>
+            <Link href="/men" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Men</Link>
+            <Link href="/women" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Women</Link>
+            <Link href="/customize" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Customise</Link>
           </div>
         </div>
 
-        {/* Company */}
+        {/* Support */}
         <div>
           <h4 style={{ fontSize: '13px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.5 }}>
-            Company
+            Support
           </h4>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Link href="/about" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>About</Link>
+            <Link href="/faq" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>FAQ</Link>
+            <Link href="/returns" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Returns & Exchanges</Link>
+            <Link href="/size-guide" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Size Guide</Link>
             <Link href="/contact" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Contact</Link>
           </div>
         </div>
 
-        {/* Newsletter */}
+        {/* Legal */}
         <div>
           <h4 style={{ fontSize: '13px', fontWeight: '600', marginBottom: '16px', textTransform: 'uppercase', letterSpacing: '2px', opacity: 0.5 }}>
-            Newsletter
+            Legal
           </h4>
-          <p style={{ fontSize: '13px', opacity: 0.6, marginBottom: '12px' }}>
-            Get updates on new drops and exclusives.
-          </p>
-          <form onSubmit={(e) => e.preventDefault()} style={{ display: 'flex', gap: '8px' }}>
-            <input
-              type="email"
-              placeholder="your@email.com"
-              style={{
-                flex: 1, padding: '10px 14px', background: 'rgba(255,255,255,0.08)',
-                border: '1px solid rgba(255,255,255,0.15)', borderRadius: '6px',
-                color: 'white', fontSize: '13px', outline: 'none',
-              }}
-            />
-            <button
-              type="submit"
-              style={{
-                padding: '10px 16px', background: '#FF6B35', border: 'none',
-                borderRadius: '6px', color: 'white', fontSize: '13px',
-                cursor: 'pointer', fontWeight: '600',
-              }}
-            >
-              Join
-            </button>
-          </form>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <Link href="/privacy-policy" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Privacy Policy</Link>
+            <Link href="/terms" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Terms of Service</Link>
+            <Link href="/cookie-policy" style={{ color: 'rgba(255,255,255,0.7)', textDecoration: 'none', fontSize: '14px' }}>Cookie Policy</Link>
+          </div>
         </div>
       </div>
 
@@ -95,12 +78,13 @@ export default function Footer() {
         gap: '10px',
       }}>
         <p style={{ fontSize: '12px', opacity: 0.4 }}>
-          © {new Date().getFullYear()} POSSESSD. All rights reserved.
+          &copy; {new Date().getFullYear()} POSSESSD. All rights reserved.
         </p>
         <div style={{ display: 'flex', gap: '20px' }}>
           <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }} aria-label="Instagram"><i className="ri-instagram-line"></i></a>
           <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }} aria-label="Twitter"><i className="ri-twitter-x-line"></i></a>
-          <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }} aria-label="Facebook"><i className="ri-facebook-fill"></i></a>
+          <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }} aria-label="TikTok"><i className="ri-tiktok-line"></i></a>
+          <a href="#" style={{ color: 'rgba(255,255,255,0.4)', fontSize: '16px' }} aria-label="Pinterest"><i className="ri-pinterest-line"></i></a>
         </div>
       </div>
     </footer>

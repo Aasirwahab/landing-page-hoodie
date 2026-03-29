@@ -1,6 +1,5 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import ConvexClientProvider from './providers/ConvexClientProvider'
 import SmoothScrollProvider from './providers/SmoothScrollProvider'
 import { CartProvider } from './context/CartContext'

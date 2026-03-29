@@ -1,7 +1,12 @@
 'use client'
 
-import { useEffect, useRef, createContext, useContext } from 'react'
+import { useEffect, useRef, useState, createContext, useContext } from 'react'
 import Lenis from 'lenis'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+// Register ScrollTrigger once at module level — all components share this
+gsap.registerPlugin(ScrollTrigger)
 
 const LenisContext = createContext<Lenis | null>(null)
 
@@ -9,46 +14,32 @@ export const useLenis = () => useContext(LenisContext)
 
 export default function SmoothScrollProvider({ children }: { children: React.ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null)
+  const [lenis, setLenis] = useState<Lenis | null>(null)
 
   useEffect(() => {
-    const lenis = new Lenis({
+    const instance = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       touchMultiplier: 2,
       infinite: false,
+      autoRaf: true,
     })
 
-    lenisRef.current = lenis
+    lenisRef.current = instance
+    setLenis(instance)
 
-    function raf(time: number) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
-    requestAnimationFrame(raf)
-
-    // Sync Lenis with GSAP ScrollTrigger if loaded
-    import('gsap').then(({ gsap }) => {
-      import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-        gsap.registerPlugin(ScrollTrigger)
-
-        lenis.on('scroll', ScrollTrigger.update)
-
-        gsap.ticker.add((time) => {
-          lenis.raf(time * 1000)
-        })
-
-        gsap.ticker.lagSmoothing(0)
-      })
-    })
+    // Sync ScrollTrigger with Lenis scroll events
+    instance.on('scroll', ScrollTrigger.update)
 
     return () => {
-      lenis.destroy()
+      instance.destroy()
       lenisRef.current = null
+      setLenis(null)
     }
   }, [])
 
   return (
-    <LenisContext.Provider value={lenisRef.current}>
+    <LenisContext.Provider value={lenis}>
       {children}
     </LenisContext.Provider>
   )

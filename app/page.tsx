@@ -7,10 +7,10 @@ import Link from 'next/link'
 import { useQuery } from 'convex/react'
 import { api } from '../convex/_generated/api'
 import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
 // Eagerly loaded (above fold)
 import Navigation from './components/Navigation'
-import CartSidebar from './components/CartSidebar'
 import BrandLoader from './components/BrandLoader'
 import CustomCursor from './components/CustomCursor'
 
@@ -62,44 +62,45 @@ export default function Home() {
   useEffect(() => {
     if (loading || !mounted) return
 
-    let scrollTriggers: any[] = []
+    const scrollTriggers: ScrollTrigger[] = []
 
-    import('gsap/ScrollTrigger').then(({ ScrollTrigger }) => {
-      gsap.registerPlugin(ScrollTrigger)
+    const sections = containerRef.current?.querySelectorAll('[data-section]')
+    sections?.forEach((section) => {
+      const animElements = section.querySelectorAll('[data-anim]')
+      animElements.forEach((el, i) => {
+        const htmlEl = el as HTMLElement
+        const animType = htmlEl.dataset.anim
+        const delay = parseFloat(htmlEl.dataset.animDelay || '0') + i * 0.08
 
-      const sections = containerRef.current?.querySelectorAll('[data-section]')
-      sections?.forEach((section) => {
-        const animElements = section.querySelectorAll('[data-anim]')
-        animElements.forEach((el, i) => {
-          const htmlEl = el as HTMLElement
-          const animType = htmlEl.dataset.anim
-          const delay = parseFloat(htmlEl.dataset.animDelay || '0') + i * 0.08
+        const animProps: Record<string, any> = {
+          'fade-up': { from: { opacity: 0, y: 60 }, to: { opacity: 1, y: 0, duration: 1, ease: 'power3.out' } },
+          'fade-in': { from: { opacity: 0 }, to: { opacity: 1, duration: 1.2, ease: 'power2.out' } },
+          'slide-left': { from: { opacity: 0, x: -80 }, to: { opacity: 1, x: 0, duration: 1, ease: 'power3.out' } },
+          'slide-right': { from: { opacity: 0, x: 80 }, to: { opacity: 1, x: 0, duration: 1, ease: 'power3.out' } },
+          'scale-in': { from: { opacity: 0, scale: 0.85 }, to: { opacity: 1, scale: 1, duration: 1.2, ease: 'power3.out' } },
+          'clip-reveal': { from: { clipPath: 'inset(100% 0 0 0)' }, to: { clipPath: 'inset(0% 0 0 0)', duration: 1.2, ease: 'power3.inOut' } },
+          'line-draw': { from: { scaleX: 0 }, to: { scaleX: 1, duration: 1, ease: 'power3.inOut' } },
+        }
 
-          const animProps: Record<string, any> = {
-            'fade-up': { from: { opacity: 0, y: 60 }, to: { opacity: 1, y: 0, duration: 1, ease: 'power3.out' } },
-            'fade-in': { from: { opacity: 0 }, to: { opacity: 1, duration: 1.2, ease: 'power2.out' } },
-            'slide-left': { from: { opacity: 0, x: -80 }, to: { opacity: 1, x: 0, duration: 1, ease: 'power3.out' } },
-            'slide-right': { from: { opacity: 0, x: 80 }, to: { opacity: 1, x: 0, duration: 1, ease: 'power3.out' } },
-            'scale-in': { from: { opacity: 0, scale: 0.85 }, to: { opacity: 1, scale: 1, duration: 1.2, ease: 'power3.out' } },
-            'clip-reveal': { from: { clipPath: 'inset(100% 0 0 0)' }, to: { clipPath: 'inset(0% 0 0 0)', duration: 1.2, ease: 'power3.inOut' } },
-            'line-draw': { from: { scaleX: 0 }, to: { scaleX: 1, duration: 1, ease: 'power3.inOut' } },
-          }
+        const anim = animProps[animType || '']
+        if (!anim) return
 
-          const anim = animProps[animType || '']
-          if (!anim) return
-
-          const tween = gsap.fromTo(htmlEl, anim.from, {
-            ...anim.to,
-            delay,
-            scrollTrigger: {
-              trigger: htmlEl,
-              start: 'top 85%',
-              toggleActions: 'play none none none',
-            },
-          })
-          scrollTriggers.push(tween.scrollTrigger)
+        const tween = gsap.fromTo(htmlEl, anim.from, {
+          ...anim.to,
+          delay,
+          scrollTrigger: {
+            trigger: htmlEl,
+            start: 'top 85%',
+            toggleActions: 'play none none none',
+          },
         })
+        if (tween.scrollTrigger) scrollTriggers.push(tween.scrollTrigger)
       })
+    })
+
+    // Refresh after next frame when layout has settled
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => ScrollTrigger.refresh())
     })
 
     return () => {
@@ -122,32 +123,26 @@ export default function Home() {
       .fromTo('.hero-scroll-indicator', { opacity: 0 }, { opacity: 1, duration: 0.6 }, '-=0.3')
   }, [loading, mounted])
 
-  // Parallax on hero image (rAF-throttled for performance)
+  // Parallax on hero image (using GSAP ScrollTrigger — synced with Lenis)
   useEffect(() => {
     if (loading || !mounted) return
+    if (window.innerWidth <= 1024) return
 
-    let rafId: number | null = null
-    const handleScroll = () => {
-      if (rafId) return
-      rafId = requestAnimationFrame(() => {
-        rafId = null
-        if (!heroImgRef.current) return
-        if (window.innerWidth <= 1024) {
-          heroImgRef.current.style.transform = 'none'
-          return
-        }
-        const scrollY = window.scrollY
-        const translateY = scrollY * 0.3
-        const scale = 1 + scrollY * 0.0002
-        heroImgRef.current.style.transform = `translateY(${translateY}px) scale(${Math.min(scale, 1.15)})`
-      })
-    }
+    if (!heroImgRef.current) return
 
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => {
-      window.removeEventListener('scroll', handleScroll)
-      if (rafId) cancelAnimationFrame(rafId)
-    }
+    const st = gsap.to(heroImgRef.current, {
+      y: 150,
+      scale: 1.08,
+      ease: 'none',
+      scrollTrigger: {
+        trigger: heroImgRef.current,
+        start: 'top top',
+        end: 'bottom top',
+        scrub: true,
+      },
+    }).scrollTrigger
+
+    return () => { st?.kill() }
   }, [loading, mounted])
 
   const handleAddToCart = useCallback(
@@ -183,7 +178,6 @@ export default function Home() {
     <div ref={containerRef} className="premium-home">
       <CustomCursor />
       <Navigation />
-      <CartSidebar />
 
       {/* ====== HERO SECTION ====== */}
       <section ref={heroRef} className="hero-section">
@@ -461,6 +455,10 @@ export default function Home() {
 
       {/* ====== ADVANCED TECHNICAL SECTION ====== */}
       <AnatomySection />
+
+      {/* ====== CINEMATIC CAMPAIGN VIDEO ====== */}
+      <CampaignSection />
+
       <FabricSection />
 
       {/* ====== EDITORIAL / BRAND STORY SECTION ====== */}
@@ -503,9 +501,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ====== CINEMATIC CAMPAIGN SECTION ====== */}
-      <CampaignSection />
-
       {/* ====== CTA / NEWSLETTER SECTION ====== */}
       <section ref={ctaRef} className="cta-section" data-section>
         <div className="cta-inner">
@@ -525,39 +520,105 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ====== FOOTER ====== */}
+      {/* ====== PREMIUM FOOTER ====== */}
       <footer className="premium-footer">
+        {/* Back to top */}
+        <button
+          className="footer-back-to-top"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          aria-label="Back to top"
+        >
+          <i className="ri-arrow-up-line"></i>
+        </button>
+
         <div className="footer-inner">
-          <div className="footer-brand">
-            <h3 className="footer-logo">POSSESSD</h3>
-            <p className="footer-tagline">Premium Outerwear for the Bold</p>
-          </div>
-          <div className="footer-links">
-            <div className="footer-col">
-              <h4>Shop</h4>
-              <Link href="/men">Men</Link>
-              <Link href="/women">Women</Link>
-              <Link href="/shop">All Products</Link>
-            </div>
-            <div className="footer-col">
-              <h4>Company</h4>
-              <Link href="/shop">About</Link>
-              <Link href="/shop">Contact</Link>
-              <Link href="/shop">Careers</Link>
-            </div>
-            <div className="footer-col">
-              <h4>Support</h4>
-              <Link href="/dashboard">My Orders</Link>
-              <Link href="/shop">Returns</Link>
-              <Link href="/shop">FAQ</Link>
+          {/* Top: Large brand statement */}
+          <div className="footer-hero">
+            <h2 className="footer-brand-statement">
+              Engineered for those who
+              <br />
+              <span className="footer-brand-accent">refuse to blend in.</span>
+            </h2>
+            <div className="footer-hero-cta">
+              <Link href="/shop" className="footer-shop-btn">
+                Explore Collection
+                <i className="ri-arrow-right-line"></i>
+              </Link>
             </div>
           </div>
+
+          <div className="footer-divider" />
+
+          {/* Middle: Links + Newsletter */}
+          <div className="footer-main">
+            <div className="footer-links">
+              <div className="footer-col">
+                <h4>Shop</h4>
+                <Link href="/men">Men</Link>
+                <Link href="/women">Women</Link>
+                <Link href="/shop">All Products</Link>
+                <Link href="/customize">Customize</Link>
+              </div>
+              <div className="footer-col">
+                <h4>Company</h4>
+                <Link href="/about">About Us</Link>
+                <Link href="/contact">Contact</Link>
+                <Link href="/shop">Careers</Link>
+                <Link href="/shop">Press</Link>
+              </div>
+              <div className="footer-col">
+                <h4>Support</h4>
+                <Link href="/dashboard">My Orders</Link>
+                <Link href="/returns">Returns &amp; Exchanges</Link>
+                <Link href="/size-guide">Size Guide</Link>
+                <Link href="/faq">FAQ</Link>
+              </div>
+            </div>
+
+            {/* Newsletter */}
+            <div className="footer-newsletter">
+              <h4>Stay in the Loop</h4>
+              <p className="footer-newsletter-desc">
+                Exclusive drops, early access, and members-only content delivered to your inbox.
+              </p>
+              <form className="footer-newsletter-form" onSubmit={(e) => e.preventDefault()}>
+                <input
+                  type="email"
+                  placeholder="Your email address"
+                  className="footer-newsletter-input"
+                  aria-label="Email address"
+                />
+                <button type="submit" className="footer-newsletter-btn">
+                  <i className="ri-arrow-right-line"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div className="footer-divider" />
+
+          {/* Bottom bar */}
           <div className="footer-bottom">
-            <p>&copy; 2025 POSSESSD. All rights reserved.</p>
-            <div className="footer-socials">
-              <a href="#" aria-label="Instagram"><i className="ri-instagram-line"></i></a>
-              <a href="#" aria-label="Twitter"><i className="ri-twitter-x-line"></i></a>
-              <a href="#" aria-label="Facebook"><i className="ri-facebook-line"></i></a>
+            <div className="footer-bottom-left">
+              <h3 className="footer-logo">POSSESSD</h3>
+              <p className="footer-copyright">&copy; 2025 POSSESSD. All rights reserved.</p>
+            </div>
+
+            <div className="footer-bottom-center">
+              <Link href="/privacy-policy" className="footer-legal-link">Privacy Policy</Link>
+              <span className="footer-legal-dot">&middot;</span>
+              <Link href="/terms" className="footer-legal-link">Terms of Service</Link>
+              <span className="footer-legal-dot">&middot;</span>
+              <Link href="/cookie-policy" className="footer-legal-link">Cookie Policy</Link>
+            </div>
+
+            <div className="footer-bottom-right">
+              <div className="footer-socials">
+                <a href="#" aria-label="Instagram"><i className="ri-instagram-line"></i></a>
+                <a href="#" aria-label="Twitter"><i className="ri-twitter-x-line"></i></a>
+                <a href="#" aria-label="TikTok"><i className="ri-tiktok-line"></i></a>
+                <a href="#" aria-label="Pinterest"><i className="ri-pinterest-line"></i></a>
+              </div>
             </div>
           </div>
         </div>
