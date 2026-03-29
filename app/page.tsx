@@ -588,7 +588,7 @@ export default function Home() {
                   className="footer-newsletter-input"
                   aria-label="Email address"
                 />
-                <button type="submit" className="footer-newsletter-btn">
+                <button type="submit" className="footer-newsletter-btn" aria-label="Subscribe to newsletter">
                   <i className="ri-arrow-right-line"></i>
                 </button>
               </form>

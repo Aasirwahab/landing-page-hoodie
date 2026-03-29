@@ -2681,6 +2681,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: opacity 0.5s ease;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 .campaign-overlay-hidden {
@@ -2816,6 +2818,7 @@ body {
   font-variant-numeric: tabular-nums;
   min-width: 36px;
   flex-shrink: 0;
+  -webkit-user-select: none;
   user-select: none;
 }
 

@@ -205,7 +205,6 @@ export default function CampaignSection() {
         <div
           className={`campaign-overlay ${isPlaying ? 'campaign-overlay-hidden' : ''}`}
           onClick={togglePlay}
-          style={{ pointerEvents: 'auto', cursor: 'pointer' }}
         >
           <div className="campaign-play-btn">
             <i className={`ri-${isPlaying ? 'pause' : 'play'}-fill`}></i>
