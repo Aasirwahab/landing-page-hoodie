@@ -1,5 +1,6 @@
 import { internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const getProduct = internalQuery({
   args: { id: v.id("products") },
@@ -186,7 +187,7 @@ export const markOrderPaid = internalMutation({
       }
     }
 
-    // Clear user's cart
+    // Clear user's cart and send confirmation email
     const user = await ctx.db
       .query("users")
       .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
@@ -199,6 +200,27 @@ export const markOrderPaid = internalMutation({
       if (cart) {
         await ctx.db.patch(cart._id, { items: [] });
       }
+
+      // Send order confirmation email
+      await ctx.scheduler.runAfter(0, internal.email.sendOrderEmail, {
+        userEmail: user.email,
+        userName: user.name,
+        status: "paid",
+        orderId: order._id,
+        items: order.items.map((item) => ({
+          title: item.title,
+          color: item.color,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        subtotal: order.subtotal,
+        tax: order.tax,
+        shipping: order.shipping,
+        total: order.total,
+        discount: order.discount,
+        shippingAddress: order.shippingAddress,
+      });
     }
   },
 });

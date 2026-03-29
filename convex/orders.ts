@@ -1,5 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { internal } from "./_generated/api";
 
 export const getByUser = query({
   handler: async (ctx) => {
@@ -88,6 +89,34 @@ export const updateStatus = mutation({
     ];
 
     await ctx.db.patch(args.id, { status: args.status, statusHistory });
+
+    // Send email notification for status change
+    const orderUser = await ctx.db.get(order.userId);
+    if (orderUser) {
+      await ctx.scheduler.runAfter(0, internal.email.sendOrderEmail, {
+        userEmail: orderUser.email,
+        userName: orderUser.name,
+        status: args.status,
+        orderId: order._id,
+        items: order.items.map((item) => ({
+          title: item.title,
+          color: item.color,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        subtotal: order.subtotal,
+        tax: order.tax,
+        shipping: order.shipping,
+        total: order.total,
+        discount: order.discount,
+        shippingAddress: order.shippingAddress,
+        trackingNumber: order.trackingNumber,
+        shippingCarrier: order.shippingCarrier,
+        trackingUrl: order.trackingUrl,
+        estimatedDelivery: order.estimatedDelivery,
+      });
+    }
   },
 });
 
@@ -135,6 +164,9 @@ export const updateShipping = mutation({
       .first();
     if (!user || user.role !== "admin") throw new Error("Not authorized");
 
+    const order = await ctx.db.get(args.id);
+    if (!order) throw new Error("Order not found");
+
     const trackingUrl =
       args.trackingUrl ||
       (CARRIER_TRACKING_URLS[args.shippingCarrier]
@@ -147,6 +179,34 @@ export const updateShipping = mutation({
       trackingUrl,
       estimatedDelivery: args.estimatedDelivery,
     });
+
+    // Send shipped email with tracking info
+    const orderUser = await ctx.db.get(order.userId);
+    if (orderUser) {
+      await ctx.scheduler.runAfter(0, internal.email.sendOrderEmail, {
+        userEmail: orderUser.email,
+        userName: orderUser.name,
+        status: "shipped",
+        orderId: order._id,
+        items: order.items.map((item) => ({
+          title: item.title,
+          color: item.color,
+          price: item.price,
+          quantity: item.quantity,
+          size: item.size,
+        })),
+        subtotal: order.subtotal,
+        tax: order.tax,
+        shipping: order.shipping,
+        total: order.total,
+        discount: order.discount,
+        shippingAddress: order.shippingAddress,
+        trackingNumber: args.trackingNumber,
+        shippingCarrier: args.shippingCarrier,
+        trackingUrl,
+        estimatedDelivery: args.estimatedDelivery,
+      });
+    }
   },
 });
 

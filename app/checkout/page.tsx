@@ -197,12 +197,48 @@ export default function CheckoutPage() {
                   onChange={(e) => setAddress({ ...address, zip: e.target.value })}
                   style={inputStyle}
                 />
-                <input
-                  placeholder="Country"
+                <select
                   value={address.country}
                   onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                  style={inputStyle}
-                />
+                  style={{ ...inputStyle, cursor: 'pointer' }}
+                  aria-label="Country"
+                >
+                  <option value="US">United States</option>
+                  <option value="CA">Canada</option>
+                  <option value="GB">United Kingdom</option>
+                  <option value="AU">Australia</option>
+                  <option value="DE">Germany</option>
+                  <option value="FR">France</option>
+                  <option value="IT">Italy</option>
+                  <option value="ES">Spain</option>
+                  <option value="NL">Netherlands</option>
+                  <option value="SE">Sweden</option>
+                  <option value="NO">Norway</option>
+                  <option value="DK">Denmark</option>
+                  <option value="CH">Switzerland</option>
+                  <option value="AT">Austria</option>
+                  <option value="BE">Belgium</option>
+                  <option value="JP">Japan</option>
+                  <option value="KR">South Korea</option>
+                  <option value="SG">Singapore</option>
+                  <option value="AE">UAE</option>
+                  <option value="SA">Saudi Arabia</option>
+                  <option value="IN">India</option>
+                  <option value="LK">Sri Lanka</option>
+                  <option value="PK">Pakistan</option>
+                  <option value="BD">Bangladesh</option>
+                  <option value="MY">Malaysia</option>
+                  <option value="NZ">New Zealand</option>
+                  <option value="IE">Ireland</option>
+                  <option value="PT">Portugal</option>
+                  <option value="PL">Poland</option>
+                  <option value="BR">Brazil</option>
+                  <option value="MX">Mexico</option>
+                  <option value="ZA">South Africa</option>
+                  <option value="NG">Nigeria</option>
+                  <option value="QA">Qatar</option>
+                  <option value="KW">Kuwait</option>
+                </select>
               </div>
             </div>
 
