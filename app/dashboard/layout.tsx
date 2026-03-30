@@ -16,21 +16,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0a0a1a', color: 'white', display: 'flex' }}>
+    <div className="dashboard-layout" style={{ background: '#0a0a1a', color: 'white' }}>
       {/* Sidebar */}
-      <aside style={{
-        width: '240px', background: 'rgba(255,255,255,0.03)',
-        borderRight: '1px solid rgba(255,255,255,0.06)',
-        padding: '24px 0', flexShrink: 0,
-      }}>
+      <aside className="dashboard-sidebar">
         <Link href="/" style={{ textDecoration: 'none', color: 'white' }}>
-          <div style={{ padding: '0 24px', marginBottom: '32px' }}>
+          <div className="dashboard-sidebar-brand">
             <h2 style={{ fontSize: '18px', fontWeight: '700', letterSpacing: '3px' }}>POSSESSD</h2>
             <p style={{ fontSize: '11px', opacity: 0.4, marginTop: '4px' }}>My Account</p>
           </div>
         </Link>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+        <nav className="dashboard-sidebar-nav">
           {dashNav.map((item) => {
             const isActive = pathname === item.href ||
               (item.href !== '/dashboard' && pathname.startsWith(item.href))
@@ -38,13 +34,10 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
+                className={isActive ? 'dash-nav-active' : ''}
                 style={{
-                  display: 'flex', alignItems: 'center', gap: '12px',
-                  padding: '12px 24px', fontSize: '14px',
                   color: isActive ? '#FF6B35' : 'rgba(255,255,255,0.6)',
                   background: isActive ? 'rgba(255,107,53,0.08)' : 'transparent',
-                  borderRight: isActive ? '3px solid #FF6B35' : '3px solid transparent',
-                  textDecoration: 'none', transition: 'all 0.2s',
                 }}
               >
                 <i className={item.icon} style={{ fontSize: '18px' }}></i>
@@ -54,7 +47,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
           })}
         </nav>
 
-        <div style={{ padding: '24px', position: 'absolute', bottom: '20px', left: '0' }}>
+        <div className="dashboard-sidebar-footer">
           <Link href="/shop" style={{
             display: 'flex', alignItems: 'center', gap: '8px',
             fontSize: '13px', color: 'rgba(255,255,255,0.4)', textDecoration: 'none',
@@ -64,7 +57,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      <main style={{ flex: 1, padding: '32px', overflowY: 'auto' }}>
+      <main className="dashboard-main-content">
         {children}
       </main>
     </div>

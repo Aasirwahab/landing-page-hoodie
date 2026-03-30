@@ -73,7 +73,7 @@ export default function DashboardOrdersPage() {
                     e.currentTarget.style.boxShadow = 'none'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div className="order-card-inner" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                     {/* Product Thumbnails */}
                     <div style={{ display: 'flex', marginRight: '4px' }}>
                       {itemImages.length > 0 ? (

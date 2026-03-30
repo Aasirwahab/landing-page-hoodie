@@ -67,14 +67,9 @@ export default function ProductDetailPage() {
         averageRating={avgRating?.average}
         reviewCount={avgRating?.count}
       />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '40px 20px' }}>
+      <div className="product-page-wrapper">
         {/* Product Hero */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '60px',
-          marginBottom: '80px',
-        }}>
+        <div className="product-hero-grid">
           {/* Image Gallery */}
           <ProductGallery product={product} />
 
@@ -83,11 +78,11 @@ export default function ProductDetailPage() {
             <p style={{ fontSize: '12px', letterSpacing: '3px', textTransform: 'uppercase', opacity: 0.5, marginBottom: '12px' }}>
               POSSESSD Collection
             </p>
-            <h1 style={{ fontSize: '40px', fontWeight: '700', letterSpacing: '2px', marginBottom: '8px' }}>
+            <h1 className="product-detail-title" style={{ fontWeight: '700', letterSpacing: '2px', marginBottom: '8px' }}>
               {product.title}
             </h1>
             <p style={{ fontSize: '18px', opacity: 0.7, marginBottom: '24px' }}>{product.color}</p>
-            <p style={{ fontSize: '36px', fontWeight: '700', color: '#FF6B35', marginBottom: '24px' }}>
+            <p className="product-detail-price" style={{ fontWeight: '700', color: '#FF6B35', marginBottom: '24px' }}>
               {product.priceFormatted}
             </p>
 
@@ -112,7 +107,7 @@ export default function ProductDetailPage() {
                     Size Guide
                   </button>
                 </div>
-                <div style={{ display: 'flex', gap: '10px' }}>
+                <div className="product-size-selector">
                   {product.sizes.map((s) => (
                     <button
                       key={s.size}
@@ -165,7 +160,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* Buttons */}
-            <div style={{ display: 'flex', gap: '12px' }}>
+            <div className="product-action-btns">
               <button
                 onClick={handleBuyNow}
                 disabled={!product.inStock}
@@ -206,11 +201,7 @@ export default function ProductDetailPage() {
             <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '30px', letterSpacing: '1px' }}>
               You May Also Like
             </h2>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '24px',
-            }}>
+            <div className="product-related-grid">
               {relatedProducts.map((p) => (
                 <ProductCard key={p._id} product={p} />
               ))}

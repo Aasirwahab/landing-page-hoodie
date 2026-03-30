@@ -154,12 +154,12 @@ export default function CheckoutPage() {
 
   return (
     <PageLayout>
-      <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '40px 20px' }}>
-        <h1 style={{ fontSize: '32px', fontWeight: '700', marginBottom: '40px', letterSpacing: '2px' }}>
+      <div className="checkout-page-wrapper">
+        <h1 className="checkout-title" style={{ fontWeight: '700', marginBottom: '40px', letterSpacing: '2px' }}>
           CHECKOUT
         </h1>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 400px', gap: '40px' }}>
+        <div className="checkout-main-grid">
           {/* Shipping Address */}
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>Shipping Address</h2>
@@ -176,7 +176,7 @@ export default function CheckoutPage() {
                 onChange={(e) => setAddress({ ...address, line2: e.target.value })}
                 style={inputStyle}
               />
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="checkout-address-row">
                 <input
                   placeholder="City *"
                   value={address.city}
@@ -190,7 +190,7 @@ export default function CheckoutPage() {
                   style={inputStyle}
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
+              <div className="checkout-address-row">
                 <input
                   placeholder="ZIP Code *"
                   value={address.zip}
@@ -311,11 +311,10 @@ export default function CheckoutPage() {
           </div>
 
           {/* Order Summary */}
-          <div style={{
+          <div className="checkout-summary-box" style={{
             background: 'rgba(255,255,255,0.04)',
             border: '1px solid rgba(255,255,255,0.08)',
             borderRadius: '16px',
-            padding: '24px',
           }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px' }}>Order Summary</h2>
 

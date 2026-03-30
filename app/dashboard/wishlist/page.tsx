@@ -27,7 +27,7 @@ export default function WishlistPage() {
       ) : (
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))',
           gap: '20px',
         }}>
           {wishlistProducts.map((product) => (

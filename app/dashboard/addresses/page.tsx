@@ -60,11 +60,11 @@ export default function AddressesPage() {
           <input placeholder="Label (e.g. Home) *" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} style={inputStyle} />
           <input placeholder="Address Line 1 *" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} style={inputStyle} />
           <input placeholder="Address Line 2" value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} style={inputStyle} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="address-form-row">
             <input placeholder="City *" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} style={inputStyle} />
             <input placeholder="State *" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} style={inputStyle} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div className="address-form-row">
             <input placeholder="ZIP *" value={form.zip} onChange={(e) => setForm({ ...form, zip: e.target.value })} style={inputStyle} />
             <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} style={inputStyle} />
           </div>

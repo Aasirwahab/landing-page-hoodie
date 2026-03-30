@@ -51,7 +51,7 @@ export default function DashboardPage() {
     <PageTransition>
       <div>
         <div className="dash-header" style={{ opacity: 0, marginBottom: '32px' }}>
-          <h1 style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
+          <h1 className="dashboard-welcome-title" style={{ fontWeight: '700', marginBottom: '8px' }}>
             Welcome back, {user?.firstName || 'there'}
           </h1>
           <p style={{ opacity: 0.5, fontSize: '14px' }}>
@@ -59,7 +59,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '40px' }}>
+        <div className="dashboard-stats-grid">
           <div className="stat-card" style={{
             padding: '24px', borderRadius: '12px', opacity: 0,
             background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
@@ -74,7 +74,7 @@ export default function DashboardPage() {
               </div>
               <p style={{ fontSize: '13px', opacity: 0.5 }}>Total Orders</p>
             </div>
-            <p style={{ fontSize: '28px', fontWeight: '700' }}>
+            <p className="dashboard-stat-value" style={{ fontWeight: '700' }}>
               <span ref={ordersRef}>0</span>
             </p>
           </div>
@@ -92,7 +92,7 @@ export default function DashboardPage() {
               </div>
               <p style={{ fontSize: '13px', opacity: 0.5 }}>Total Spent</p>
             </div>
-            <p style={{ fontSize: '28px', fontWeight: '700' }}>
+            <p className="dashboard-stat-value" style={{ fontWeight: '700' }}>
               $<span ref={spentRef}>0.00</span>
             </p>
           </div>
@@ -110,16 +110,16 @@ export default function DashboardPage() {
               </div>
               <p style={{ fontSize: '13px', opacity: 0.5 }}>Wishlist</p>
             </div>
-            <p style={{ fontSize: '28px', fontWeight: '700' }}>
+            <p className="dashboard-stat-value" style={{ fontWeight: '700' }}>
               <span ref={wishlistRef}>0</span>
             </p>
           </div>
         </div>
 
         {/* Recent Orders */}
-        <div style={{
+        <div className="dashboard-recent-orders-box" style={{
           background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)',
-          borderRadius: '12px', padding: '24px',
+          borderRadius: '12px',
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <h2 style={{ fontSize: '18px', fontWeight: '600' }}>Recent Orders</h2>

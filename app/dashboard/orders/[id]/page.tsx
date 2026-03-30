@@ -86,7 +86,7 @@ export default function DashboardOrderDetailPage() {
             opacity: 0, padding: '20px', borderRadius: '12px', marginBottom: '24px',
             background: 'rgba(255,107,53,0.04)', border: '1px solid rgba(255,107,53,0.12)',
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div className="order-detail-tracking" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
                 <p style={{ fontSize: '13px', opacity: 0.5, marginBottom: '6px' }}>Tracking Number</p>
                 <p style={{ fontSize: '16px', fontFamily: 'monospace', fontWeight: '600', letterSpacing: '1px' }}>

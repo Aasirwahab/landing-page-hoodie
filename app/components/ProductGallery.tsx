@@ -57,6 +57,7 @@ export default function ProductGallery({ product }: ProductGalleryProps) {
         onMouseEnter={() => setIsZoomed(true)}
         onMouseLeave={() => setIsZoomed(false)}
         onMouseMove={handleMouseMove}
+        className="product-gallery-main"
         style={{
           borderRadius: '20px',
           overflow: 'hidden',
@@ -64,7 +65,6 @@ export default function ProductGallery({ product }: ProductGalleryProps) {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          minHeight: '500px',
           position: 'relative',
           cursor: images.length > 0 ? 'zoom-in' : 'default',
         }}
